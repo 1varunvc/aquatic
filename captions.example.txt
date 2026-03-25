@@ -1,0 +1,8 @@
+Instructions:
+Rename or copy this file to 'captions.txt' to use it.
+The format is: Exact Filename | Your Caption Here
+Delete everything else in this file.
+Do not use the pipe symbol (|) inside your actual caption text.
+
+Screenshot 2026-03-21 at 10.15.00 AM.jpg | This is a short caption.
+Screenshot 2026-03-21 at 10.15.05 AM.jpg | This is a much longer caption. Because you set the WRAP_WIDTH to 60 in the script, this text will automatically wrap to the next line so it stays centered and does not crash into the timestamp on the left.
