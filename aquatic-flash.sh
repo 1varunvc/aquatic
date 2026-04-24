@@ -14,7 +14,7 @@ set -euo pipefail
 # Requirements: ffmpeg
 ###############################################################################
 
-TARGET_DIR="${1:-}"
+TARGET_DIR="$1"
 FILENAME="${2:-}"
 START_TIME="${3:-}"
 END_TIME="${4:-}"
@@ -84,5 +84,4 @@ ffmpeg -i "$FILENAME" -filter_complex "$FILTER" -map "[outv]" -r "$FPS" "$OUTPUT
 
 echo "-----------------------------------"
 echo "[OK] Done. Saved as $OUTPUT"
-
 
