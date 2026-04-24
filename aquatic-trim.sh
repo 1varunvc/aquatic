@@ -1,8 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic-trim.sh
-# Description : Compresses video to a specific FPS, cuts out a middle section, 
+# Description : Compresses video to a specific FPS, cuts out a middle section,
 #               and concats the remaining parts.
 #
 # Author      : Varun Chawla
@@ -13,10 +14,10 @@
 # Requirements: ffmpeg
 ###############################################################################
 
-TARGET_DIR="$1"
-FILENAME="$2"
-CUT_START="$3"
-CUT_END="$4"
+TARGET_DIR="${1:-}"
+FILENAME="${2:-}"
+CUT_START="${3:-}"
+CUT_END="${4:-}"
 FPS="${5:-7}"
 
 if [ -z "$CUT_END" ]; then

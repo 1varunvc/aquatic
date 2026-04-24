@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic-commit-history.sh

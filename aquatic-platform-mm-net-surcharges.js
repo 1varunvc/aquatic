@@ -146,6 +146,7 @@ function processSurcharges(directoryPath) {
         'Refunds($)': currencyFormatter.format(row.refundsAmt),
         'Net Number': row.netNumber,
         'Net Sales($)': currencyFormatter.format(row.netSales),
+        'Average Ticket ($)': row.sales > 0 ? currencyFormatter.format(row.salesAmt / row.sales) : currencyFormatter.format(0),
         'Net Surcharges ($)': currencyFormatter.format(row.netSurcharge)
     }));
 
@@ -157,6 +158,7 @@ function processSurcharges(directoryPath) {
         'Refunds($)': currencyFormatter.format(totals.refundsAmt),
         'Net Number': totals.netNumber,
         'Net Sales($)': currencyFormatter.format(totals.netSales),
+        'Average Ticket ($)': totals.salesCount > 0 ? currencyFormatter.format(totals.salesAmt / totals.salesCount) : currencyFormatter.format(0),
         'Net Surcharges ($)': currencyFormatter.format(totals.netSurcharge)
     });
 

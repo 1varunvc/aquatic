@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic-compress.sh
@@ -12,8 +13,8 @@
 # Requirements: ffmpeg
 ###############################################################################
 
-TARGET_DIR="$1"
-FILENAME="$2"
+TARGET_DIR="${1:-}"
+FILENAME="${2:-}"
 FPS="${3:-30}"
 
 if [ -z "$FILENAME" ]; then

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic-platform-mm-tag.sh
@@ -12,9 +13,9 @@
 # Requirements: gh
 ###############################################################################
 
-OWNER="$1"
-REPO="$2"
-VERSION="$3"
+OWNER="${1:-}"
+REPO="${2:-}"
+VERSION="${3:-}"
 TARGET="${4:-develop}"
 
 if [ -z "$VERSION" ]; then
