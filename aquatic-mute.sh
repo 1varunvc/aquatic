@@ -8,7 +8,6 @@ set -euo pipefail
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
 # Last Updated: May 1, 2026
-# Version     : 2.0
 # Usage       : aquatic mute <file> [--fps <n>]
 # Requirements: ffmpeg
 ###############################################################################

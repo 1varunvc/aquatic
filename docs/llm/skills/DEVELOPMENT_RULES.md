@@ -10,4 +10,7 @@
 8. When shared test logic exists, put it in a concrete common class with parameterized `run*()` methods. Subclasses pass their specific params — no abstract methods, no overrides. If a flow is fundamentally different (e.g., payment plan vs. payment session), it writes its own test methods using shared helpers.
 9. Capture session knowledge in `TECHNICAL_NOTES.md` per `KNOWLEDGE_ACCUMULATOR.md`.
 10. Append proven Tier 3 commands to **Verified Commands** below.
+11. Changelog entries must start with a **"What's New"** section written for end users (plain language, what they'll notice), followed by a **"Technical Details"** section for developers (implementation specifics, file changes, internal mechanisms).
+12. `RELEASES.md` entries are one-liners per version (`<version>|<user-facing summary>`). Write them as if telling a user what changed in one sentence. These are displayed on every CLI run when updates are available.
+13. Version metadata lives only in `VERSION` (single source of truth) and the router header. Individual sub-scripts must not contain `# Version` lines.
 

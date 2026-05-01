@@ -1,4 +1,4 @@
-# Plan: Aquatic CLI — Speedup Command, Snippet Rename, Docs Restructure, and Release Readiness
+# Plan: Aquatic — Speedup Command, Snippet Rename, Docs Restructure, and Release Readiness
 
 This plan covers seven areas: (1) adding a new `speedup` video command, (2) renaming snippet files to use a `dev` mode flag instead of separate naming, (3) code style consistency enforcement, (4) Homebrew packaging dependencies, (5) docs restructuring to professional standards, (6) security hardening for enterprise use, and (7) CodeGuard/Cisco considerations.
 

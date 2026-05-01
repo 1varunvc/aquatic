@@ -9,7 +9,6 @@ set -euo pipefail
 # Author      : Varun Chawla
 # Created On  : April 24, 2026
 # Last Updated: May 1, 2026
-# Version     : 2.0
 # Usage       : aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]
 # Requirements: ffmpeg
 ###############################################################################

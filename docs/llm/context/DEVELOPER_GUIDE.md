@@ -1,7 +1,7 @@
 ## DEVELOPER_GUIDE.md
 
 ```markdown
-# DEVELOPER_GUIDE.md — Aquatic CLI
+# DEVELOPER_GUIDE.md — Aquatic
 
 ## Quick Reference Card
 

@@ -1,4 +1,4 @@
-# Copilot Instructions for aquatic-cli
+# Copilot Instructions for aquatic
 
 ## Project Overview
 

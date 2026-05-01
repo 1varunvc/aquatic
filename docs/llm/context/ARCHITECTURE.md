@@ -1,13 +1,13 @@
 ## ARCHITECTURE.md
 
 ```markdown
-# ARCHITECTURE.md — Aquatic CLI
+# ARCHITECTURE.md — Aquatic
 
 ## PROJECT IDENTITY
 
 | Field | Value |
 |---|---|
-| Name | aquatic-cli |
+| Name | aquatic |
 | Type | CLI toolkit (script collection) |
 | Language | Bash, zsh, JavaScript (Node.js), JavaScript (dev browser snippets) |
 | Framework | None |
@@ -32,7 +32,7 @@
 ## FILE MAP
 
 ```
-aquatic-cli/
+aquatic/
 ├── aquatic                                        # Router (entry point)
 ├── aquatic-slideshow.sh                           # Bash video command
 ├── aquatic-compress.sh                            # Bash video command

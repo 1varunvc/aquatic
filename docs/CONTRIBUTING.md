@@ -6,8 +6,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 1. **Fork & clone** the repository:
    ```bash
-   git clone https://github.com/your-username/aquatic-cli.git
-   cd aquatic-cli
+   git clone https://github.com/your-username/aquatic.git
+   cd aquatic
    ```
 
 2. **Install dependencies** (macOS):

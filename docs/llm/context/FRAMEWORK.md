@@ -3,7 +3,7 @@
 ## FRAMEWORK.md
 
 ```markdown
-# FRAMEWORK.md — Aquatic CLI
+# FRAMEWORK.md — Aquatic
 
 ## System Overview
 

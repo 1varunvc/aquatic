@@ -9,7 +9,6 @@ set -euo pipefail
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
 # Last Updated: May 1, 2026
-# Version     : 4.0
 # Usage       : aquatic slideshow [dir] [--no-timestamps] [--output <name>]
 # Requirements: ffmpeg, md5 (or md5sum)
 ###############################################################################

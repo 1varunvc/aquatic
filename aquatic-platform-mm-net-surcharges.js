@@ -8,7 +8,6 @@
  * Author      : Varun Chawla
  * Created On  : March 21, 2026
  * Last Updated: March 21, 2026
- * Version     : 1.0
  * Usage       : cd "/path/to/folder"; chmod +x aquatic-platform-mm-net-surcharges.js; ./aquatic net-surcharges [optional/path/to/csv/folder]
  * Requirements: node
  * ###############################################################################

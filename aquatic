@@ -3,12 +3,12 @@ set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic
-# Description : Main router for the Aquatic CLI toolkit.
+# Description : Main router for the Aquatic toolkit.
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
 # Last Updated: May 1, 2026
-# Version     : 2.4.0
+# Version     : 0.1.0
 # Usage       : aquatic <command> [arguments]
 # Requirements: macOS (for pbcopy), node, ffmpeg, gh, jq
 ###############################################################################
@@ -16,40 +16,43 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CURRENT_VERSION=$(cat "$DIR/VERSION")
 
-# --- UPDATE CHECK (non-blocking, periodic) ---
+# --- UPDATE LOG (shows all versions newer than current from RELEASES.md) ---
 _aquatic_update_notify() {
-    local STATE_DIR="$HOME/.aquatic"
-    local LATEST_FILE="$STATE_DIR/latest_version"
-    local CHECK_FILE="$STATE_DIR/last_update_check"
+    local RELEASES_FILE="$DIR/RELEASES.md"
+    [ -f "$RELEASES_FILE" ] || return 0
 
-    mkdir -p "$STATE_DIR"
-
-    # Show notification from previous check
-    if [ -f "$LATEST_FILE" ]; then
-        local LATEST
-        LATEST=$(cat "$LATEST_FILE")
-        if [ "$LATEST" != "$CURRENT_VERSION" ] && [ -n "$LATEST" ]; then
-            echo "[INFO] Update available: $CURRENT_VERSION -> $LATEST (run 'brew upgrade aquatic')"
+    local FOUND_NEWER="false"
+    while IFS='|' read -r ver summary; do
+        [ -z "$ver" ] && continue
+        if [ "$ver" != "$CURRENT_VERSION" ] && [ "$FOUND_NEWER" = "false" ]; then
+            continue
         fi
-    fi
-
-    # Background check if stale (older than 24h)
-    if [ "${AQUATIC_NO_UPDATE_CHECK:-0}" != "1" ]; then
-        local NOW
-        NOW=$(date +%s)
-        local LAST=0
-        [ -f "$CHECK_FILE" ] && LAST=$(cat "$CHECK_FILE")
-        if [ $((NOW - LAST)) -gt 86400 ]; then
-            (
-                LATEST=$(curl -sf "https://api.github.com/repos/varun-chawla/aquatic-cli/releases/latest" 2>/dev/null | grep '"tag_name"' | head -1 | cut -d'"' -f4 | tr -d 'v') || true
-                date +%s > "$CHECK_FILE"
-                if [ -n "${LATEST:-}" ] && [ "$LATEST" != "$CURRENT_VERSION" ]; then
-                    echo "$LATEST" > "$LATEST_FILE"
-                else
-                    rm -f "$LATEST_FILE"
-                fi
-            ) &>/dev/null &
+        if [ "$ver" = "$CURRENT_VERSION" ]; then
+            FOUND_NEWER="true"
+            continue
         fi
+        # If we're past current version, these are newer
+    done < "$RELEASES_FILE"
+
+    # Read in reverse: show versions that come AFTER current in the file
+    local SHOW="false"
+    local LINES=()
+    while IFS='|' read -r ver summary; do
+        [ -z "$ver" ] && continue
+        if [ "$ver" = "$CURRENT_VERSION" ]; then
+            SHOW="true"
+            continue
+        fi
+        if [ "$SHOW" = "true" ]; then
+            LINES+=("  $ver — $summary")
+        fi
+    done < "$RELEASES_FILE"
+
+    if [ ${#LINES[@]} -gt 0 ]; then
+        echo "[INFO] Updates available:"
+        for line in "${LINES[@]}"; do
+            echo "$line"
+        done
     fi
 }
 
@@ -148,8 +151,7 @@ case "$COMMAND" in
         ;;
     *)
         echo "=========================================================="
-        echo "                   AQUATIC CLI TOOLKIT                    "
-        echo "              v$CURRENT_VERSION"
+        echo "                   AQUATIC (v$CURRENT_VERSION)            "
         echo "=========================================================="
         echo "Usage: aquatic <command> [options]"
         echo ""
@@ -167,8 +169,6 @@ case "$COMMAND" in
         echo "Global Options:"
         echo "  --version, -v  Show version"
         echo "  --help, -h     Show this help"
-        echo ""
-        echo "Set AQUATIC_NO_UPDATE_CHECK=1 to disable update notifications."
         echo "=========================================================="
         ;;
 esac

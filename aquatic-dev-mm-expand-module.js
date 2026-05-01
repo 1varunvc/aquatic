@@ -4,7 +4,6 @@
 // Author      : Varun Chawla
 // Created On  : March 21, 2026
 // Last Updated: March 21, 2026
-// Version     : 1.0
 // Usage       : ./aquatic snippet mm-expand-module [expansionIconLocator]
 // ###############################################################################
 

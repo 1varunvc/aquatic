@@ -8,7 +8,6 @@ set -euo pipefail
 # Author      : Varun Chawla
 # Created On  : October 19, 2025
 # Last Updated: May 1, 2026
-# Version     : 2.0
 # Usage       : aquatic commit-history [--tags <n>] [--commits <n>] [--branch <b>]
 # Requirements: gh (GitHub CLI), jq
 ###############################################################################

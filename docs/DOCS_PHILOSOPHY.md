@@ -1,6 +1,6 @@
 # Documentation Philosophy
 
-This document explains how documentation is organized in aquatic-cli and who should read what.
+This document explains how documentation is organized in aquatic and who should read what.
 
 ## Three Audiences, Three Sets of Docs
 

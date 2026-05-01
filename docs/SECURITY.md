@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in aquatic-cli, please report it responsibly:
+If you discover a security vulnerability in aquatic, please report it responsibly:
 
 1. **Do not** open a public GitHub issue.
 2. Email: **1varunvc@gmail.dev** (or open a private security advisory on GitHub).
