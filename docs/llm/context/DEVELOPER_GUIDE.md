@@ -7,17 +7,20 @@
 
 | I need to create a... | Pattern | Location | Name Pattern |
 |---|---|---|---|
-| New Bash command | Validate → `cd` → execute → log/save output | `aquatic-<name>.sh` (root) | `aquatic-<command-name>.sh` |
-| New Node.js command | `#!/usr/bin/env node`, built-in modules, validate → process → output | `aquatic-<name>.js` (root) | `aquatic-<command-name>.js` |
-| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `aquatic-dev-<name>.js` (root) + existing `dev)` branch in `aquatic` | `aquatic-dev-<name>.js` |
+| New Bash command | Flag-parse → validate → execute → log/save output | `script/aquatic-<name>.sh` | `aquatic-<command-name>.sh` |
+| New Node.js command | `#!/usr/bin/env node`, built-in modules, validate → process → output | `script/aquatic-<name>.js` | `aquatic-<command-name>.js` |
+| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `script/dev/aquatic-dev-<name>.js` + existing `dev)` branch in `aquatic` | `aquatic-dev-<name>.js` |
 | New router entry | `case` block in `aquatic` | `aquatic` | Match the command name string |
 
 ## 1. Project Structure Rules
 
-- All runnable scripts live in the repository root. No subdirectories for commands.
-- The router is `aquatic` (no extension). Bash/Zsh sub-scripts use `.sh`; Node.js commands and dev snippets use `.js`.
-- Human-facing docs live in `docs/`. LLM reference docs live in `docs/llm/context/`. Prompt and agent workflow docs live in `docs/llm/prompts/` and `docs/llm/agent/`. AI instructions live in `.github/copilot-instructions.md`.
+- The router is `aquatic` (no extension) in the repo root.
+- Bash/Zsh sub-scripts live in `script/` with `.sh` extension.
+- Dev snippets and Node.js dev commands live in `script/dev/` with `.js` extension.
+- Human-facing docs live in `docs/`. LLM reference docs live in `docs/llm/context/`. Prompt and agent workflow docs live in `docs/llm/prompt/` and `docs/llm/agent/`. AI instructions live in `.github/copilot-instructions.md`.
 - No `node_modules/`, no `package.json`. Node.js scripts use only built-in modules (`fs`, `path`).
+- `VERSION` file in root holds the current version string.
+- `RELEASES.md` in root holds the version release log consumed by the update notification system.
 
 ## 2. File Templates
 
@@ -34,26 +37,42 @@ set -euo pipefail
 # Created On  : <Date>
 # Last Updated: <Date>
 # Version     : 1.0
-# Usage       : aquatic <command> <required_arg> [optional_arg]
+# Usage       : aquatic <command> <required_arg> [--optional <val>]
 # Requirements: <ffmpeg, gh, jq, etc.>
 ###############################################################################
 
-TARGET_DIR="${1:-}"
-REQUIRED_ARG="${2:-}"
-OPTIONAL_ARG="${3:-default_value}"
+OPTIONAL_ARG="default_value"
+POSITIONAL=()  # Note: Array assignment requires Bash 4+
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --optional) OPTIONAL_ARG="$2"; shift 2 ;;
+        --help|-h)
+            echo "Usage: aquatic <command> <required_arg> [--optional <val>]"
+            exit 0
+            ;;
+        -*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
+        *) POSITIONAL+=("$1"); shift ;;
+    esac
+done
+
+REQUIRED_ARG="${POSITIONAL[0]:-}"
 
 if [ -z "$REQUIRED_ARG" ]; then
-    echo "Usage: aquatic <command> <required_arg> [optional_arg]"
+    echo "Usage: aquatic <command> <required_arg> [--optional <val>]"
     exit 1
 fi
 
-cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1; }
+if [ ! -f "$REQUIRED_ARG" ]; then
+    echo "[ERROR] File '$REQUIRED_ARG' not found."
+    exit 1
+fi
 
 # --- MAIN LOGIC ---
 
 echo "[OK] Done."
 ```
-**MODEL:** `aquatic-mute.sh` or `aquatic-xlr8.sh`
+**MODEL:** `script/aquatic-mute.sh` or `script/aquatic-xlr8.sh`
 
 ### TEMPLATE: Node.js Command
 ```javascript
@@ -85,7 +104,7 @@ if (!fs.existsSync(arg)) {
 
 // --- MAIN LOGIC ---
 ```
-**MODEL:** `aquatic-dev-mm-net-surcharges.js`
+**MODEL:** `script/dev/aquatic-dev-mm-net-surcharges.js`
 
 ### TEMPLATE: Dev Snippet
 ```javascript
@@ -101,7 +120,7 @@ if (!fs.existsSync(arg)) {
 
 // Use ___UPPER_SNAKE_CASE___ for injectable placeholders.
 ```
-**MODEL:** `aquatic-dev-mm-expand-module.js`
+**MODEL:** `script/dev/aquatic-dev-mm-expand-module.js`
 
 ### TEMPLATE: Router Case Entry (Bash command)
 ```bash
@@ -126,7 +145,7 @@ if (!fs.existsSync(arg)) {
             sed "s~___PLACEHOLDER___~$PARAM1~g" "$DEV_FILE" | pbcopy
             echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
 ```
-**MODEL:** `aquatic:65-69` (mm-expand-module block)
+**MODEL:** `aquatic:99-103` (mm-expand-module block)
 
 ## 3. Naming Rules
 
@@ -136,20 +155,20 @@ if (!fs.existsSync(arg)) {
 | Node.js sub-script file | `aquatic-<command-name>.js` | `aquatic-dev-mm-net-surcharges.js` |
 | Dev snippet file | `aquatic-dev-<name>.js` | `aquatic-dev-mm-expand-module.js` |
 | Snippet placeholders | `___UPPER_SNAKE_CASE___` | `___EXPANSION_ICON___` |
-| Bash variables | `UPPER_SNAKE_CASE` | `TARGET_DIR`, `FPS`, `BASE_NAME` |
+| Bash variables | `UPPER_SNAKE_CASE` | `FPS`, `BASE_NAME`, `POSITIONAL` |
 | JS variables | `camelCase` | `targetDir`, `brandStats` |
 | Video output files | `<base>_<suffix>.mov` | `input_mute.mov`, `input_7fps.mov`, `input_trimmed.mov` |
-| xlr8 output files | `<base>_<speed>x_<fps>fps.mov` | `input_20x_30fps.mov` |
+| xlr8 output files | `<base>_<speed>x_<fps>fps.mov` | `input_20.0x_30fps.mov` (decimal reflects default `--speed 20.0`) |
 | Git tag format | `<version>_r<sha7>` | `1.70.0_rabc1234` |
 | Router command name | lowercase, hyphenated | `commit-history`, `dev mm-net-surcharges` |
 
 ## 4. Error Handling Rules
 
-**RULE:** Every script MUST validate required args at the top, before any logic.
+**RULE:** Every script MUST validate required args at the top (after flag parsing), before any logic.
 
 ```bash
 if [ -z "$REQUIRED" ]; then
-    echo "Usage: aquatic <command> <required> [optional]"
+    echo "Usage: aquatic <command> <required> [--optional <val>]"
     exit 1
 fi
 ```
@@ -166,14 +185,15 @@ if (!fs.existsSync(directoryPath)) {
 set -euo pipefail
 ```
 
-**RULE:** Optional args use parameter expansion with defaults.
+**RULE:** Optional args use flag-based parsing with defaults set before the `while` loop.
 ```bash
-FPS="${3:-30}"
+FPS="30"
+# ... parsed via --fps flag in while/case loop
 ```
 
-**RULE:** Always guard `cd`.
+**RULE:** Unknown flags must error immediately.
 ```bash
-cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1; }
+-*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
 ```
 
 **RULE:** Sanitize every user-provided dev snippet replacement value before passing it to `sed`.
@@ -190,7 +210,7 @@ sed "s~___PLACEHOLDER___~$PARAM~g" "$DEV_FILE" | pbcopy
 | `[INFO]` | Progress or informational | `echo "[INFO] Processed 15 CSV files."` |
 | `[DEBUG]` | Low-level diagnostic detail | `echo "[DEBUG] Using selector: $SELECTOR"` |
 | `[WARN]` | Recoverable issue or fallback | `echo "[WARN] Optional file missing. Using defaults."` |
-| `[ERROR]` | Something failed | `echo "[ERROR] Directory '/tmp' not found."` |
+| `[ERROR]` | Something failed | `echo "[ERROR] File 'video.mov' not found."` |
 | `---` separator | Between processing phases | `echo "-----------------------------------"` |
 
 **RULE:** Logs should include useful operation context without redundant noise.
@@ -207,11 +227,11 @@ sed "s~___PLACEHOLDER___~$PARAM~g" "$DEV_FILE" | pbcopy
 
 ## 7. Adding a New Command — Checklist
 
-1. **CREATE** the sub-script file in the repo root following the appropriate template above.
+1. **CREATE** the sub-script file in `script/` (Bash) or `script/dev/` (Node.js/dev snippets) following the appropriate template above.
 2. **ADD** a `case` entry in `aquatic` for Bash/Node.js commands.
 3. **ADD** a usage line in the help text block in `aquatic`.
 4. **UPDATE** `README.md` if the command is user-facing.
-5. **CHMOD** the file: `chmod +x aquatic-<name>.sh` (Bash scripts only).
+5. **CHMOD** the file: `chmod +x script/aquatic-<name>.sh` (Bash scripts only).
 6. **FOR DEV SNIPPETS:**
    - Add the snippet name to the `Available:` list inside the existing `dev)` block.
    - Add an `elif` block only if placeholders need injection.
@@ -224,12 +244,11 @@ sed "s~___PLACEHOLDER___~$PARAM~g" "$DEV_FILE" | pbcopy
 |---|---|
 | 1 | No emojis in output, logs, or comments |
 | 2 | No npm dependencies — Node.js built-ins only |
-| 3 | No interactive prompts (stdin) — all input via positional args |
-| 4 | No hardcoded absolute paths to user directories (use `$1` or `$DIR`) |
+| 3 | No interactive prompts (stdin) — all input via flags and positional args |
+| 4 | No hardcoded absolute paths to user directories (use `$DIR` or flags) |
 | 5 | No writing dev snippet output to files — always pipe to `pbcopy` |
 | 6 | No bypassing `sanitize_sed` when injecting user input into dev snippets |
 | 7 | No bypassing the `AQUATIC_DEV=1` gate for dev snippets |
-| 8 | No `cd` without an error guard |
+| 8 | No missing `--help|-h` handler in command scripts |
 | 9 | No missing file header block |
-| 10 | No skipping argument validation at the top of a script |
-```
+| 10 | No skipping argument validation after flag parsing |
