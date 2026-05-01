@@ -110,7 +110,7 @@ case "$COMMAND" in
         echo "Usage: aquatic <command> [args]"
         echo ""
         echo "Commands:"
-        echo "  slideshow      [dir]                                    - Build 1-FPS screenshot slideshow"
+        echo "  slideshow      [dir] [no-ts] [output_name]              - Build 1-FPS screenshot slideshow"
         echo "  compress       <dir> <file> [fps]                       - Convert video to specific FPS (default 30)"
         echo "  mute           <dir> <file> [fps]                       - Strip audio from video (default 30fps)"
         echo "  trim           <dir> <file> <start> <end> [fps]         - Compress (default 7fps) and cut middle section"

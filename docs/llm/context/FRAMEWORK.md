@@ -1,4 +1,3 @@
-
 ---
 
 ## FRAMEWORK.md
@@ -8,7 +7,7 @@
 
 ## System Overview
 
-Aquatic is a macOS CLI toolkit providing commands for video processing (ffmpeg), Git tagging (gh + jq), CSV data parsing (Node.js), and browser automation snippets (clipboard injection via sed + pbcopy). The `aquatic` Bash script routes commands to modular sub-scripts. All files live in a flat directory with no build system or package manager.
+Aquatic is a macOS CLI toolkit providing commands for video processing (`ffmpeg`), Git tagging (`gh` + `jq`), CSV data parsing (Node.js), and dev-only browser snippets copied to the clipboard. Runtime scripts live in the repository root; documentation lives under `docs/` and `.github/`. The `aquatic` Bash router dispatches to Bash scripts, Node.js scripts, and the gated `dev` snippet flow.
 
 ## How It Works — Execution Flow
 
@@ -18,28 +17,29 @@ User runs: aquatic <command> [args...]
 ▼
 aquatic (Bash router) ─── $1 = COMMAND, shift
 │
-├── case: slideshow|compress|mute|trim|tag|commit-history
+├── case: slideshow|compress|mute|trim|flash|tag|commit-history
 │       → "$DIR/aquatic-<command>.sh" "$@"
 │
 ├── case: net-surcharges
 │       → node "$DIR/aquatic-platform-mm-net-surcharges.js" "$@"
 │
-├── case: snippet
-│       → $1 = snippet name
-│       → locate file: aquatic-snippet-platform-<name>.js
-│       → if/elif chain per snippet:
-│           sed injects ___PLACEHOLDER___ values from $2, $3...
-│           pipes to pbcopy
+├── case: dev
+│       → require `AQUATIC_DEV=1`
+│       → $1 = dev snippet name
+│       → locate file: aquatic-dev-<name>.js
+│       → sanitize_sed escapes injected values
+│       → if/elif chain injects ___PLACEHOLDER___ values from $2, $3...
+│       → pipe result to pbcopy
 │       → echo "[OK] Snippet copied to clipboard!"
 │
 └── case: * (default)
-→ print help/usage text
+        → print help/usage text
 ```
 
 **Key file pointers:**
-- Routing logic: `aquatic:20-92`
-- Snippet dispatch with placeholder injection: `aquatic:42-91`
-- Help text: `aquatic:93-109`
+- Top-level command routing: `aquatic:21-45`
+- Dev snippet dispatch, gating, and placeholder injection: `aquatic:46-105`
+- Help text: `aquatic:106-122`
 
 ## How To Add Anything — Recipes
 
@@ -50,18 +50,17 @@ CREATE: aquatic-<name>.sh in repo root
 - Use TEMPLATE from DEVELOPER_GUIDE.md § 2
 - Header block with Script Name, Description, Usage, Requirements: ffmpeg
 - Positional args: $1 = dir, $2 = file, optional with ${N:-default}
-- Validate required args, guard cd, run ffmpeg, echo Done
+- Validate required args, guard cd, use `set -euo pipefail`, run ffmpeg, log outcome
 - Output file: <base>_<suffix>.mov
 
 WIRE:
-1. aquatic — add case entry before *) block (~line 92):
+1. aquatic — add case entry before the `*)` block:
    <name>)
    "$DIR/aquatic-<name>.sh" "$@"
    ;;
-2. aquatic — add usage line in help text (~line 107):
-   echo "  <name>         <args>                     - Description"
+2. aquatic — add usage line in help text
 
-MODEL: aquatic-mute.sh (simple) or aquatic-trim.sh (multi-step)
+MODEL: aquatic-mute.sh (simple) or aquatic-flash.sh (multi-stage)
 
 VERIFY: chmod +x aquatic-<name>.sh && aquatic <name> <test-args>
 ```
@@ -103,41 +102,38 @@ MODEL: aquatic-platform-mm-net-surcharges.js
 VERIFY: aquatic <name> <test-args>
 ```
 
-### Recipe: New Browser Snippet (No Placeholders)
+### Recipe: New Dev Snippet (No Placeholders)
 
 ```
-CREATE: aquatic-snippet-platform-<name>.js in repo root
+CREATE: aquatic-dev-<name>.js in repo root
 - // header block (no shebang)
-- Pure browser JS (document.querySelector, etc.)
+- Pure browser JS (document.querySelector, async clipboard helpers, etc.)
 
 WIRE:
-1. aquatic:48 — add snippet name to "Available:" error message
-2. No elif needed — falls through to the else/cat block at aquatic:89
+1. aquatic — add snippet name to the "Available:" error message in the existing `dev)` block
+2. No elif needed — the `dev)` branch falls through to `cat "$DEV_FILE" | pbcopy`
 
-MODEL: aquatic-snippet-platform-mm-expand-module.js
+MODEL: aquatic-dev-mm-expand-module.js
 
-VERIFY: aquatic snippet <name> → check clipboard with pbpaste
+VERIFY: AQUATIC_DEV=1 aquatic dev <name> → check clipboard with pbpaste
 ```
 
-### Recipe: New Browser Snippet (With Placeholders)
+### Recipe: New Dev Snippet (With Placeholders)
 
 ```
-CREATE: aquatic-snippet-platform-<name>.js in repo root
+CREATE: aquatic-dev-<name>.js in repo root
 - Use ___UPPER_SNAKE_CASE___ for each injectable value
 - // header block
 
 WIRE:
-1. aquatic — add elif block inside the snippet) case (~line 70-91):
-   elif [ "$SNIPPET_NAME" = "<name>" ]; then
-   PARAM="${2:-default}"
-   sed "s~___PLACEHOLDER___~$PARAM~g" "$SNIPPET_FILE" | pbcopy
-   echo "[OK] Snippet '$SNIPPET_NAME' copied to clipboard!"
-2. aquatic:48 — add to "Available:" list
+1. aquatic — add snippet name to the "Available:" error message in the existing `dev)` block
+2. aquatic — add an `elif [ "$DEV_NAME" = "<name>" ]` block inside `dev)`
+3. Sanitize every injected value with `sanitize_sed` before passing it to `sed`
+4. Pipe the generated output to `pbcopy`
 
-MODEL: aquatic:52-56 (mm-expand-module, single placeholder)
-aquatic:58-68 (mm-extract-csv, multiple placeholders with -e chaining)
+MODEL: `aquatic:65-99` and `aquatic-dev-mm-extract-csv.js`
 
-VERIFY: aquatic snippet <name> [args] → pbpaste to inspect output
+VERIFY: AQUATIC_DEV=1 aquatic dev <name> [args] → pbpaste to inspect output
 ```
 
 ## Component Reference
@@ -145,41 +141,49 @@ VERIFY: aquatic snippet <name> [args] → pbpaste to inspect output
 ### Router (`aquatic`)
 | Aspect | Detail |
 |---|---|
-| Purpose | Dispatch commands to sub-scripts |
+| Purpose | Dispatch commands to sub-scripts and dev snippets |
 | Mechanism | Bash `case` on `$1`, `shift`, pass `"$@"` |
+| Shell safety | `set -euo pipefail` at the top of the router |
 | Bash commands | Direct execution: `"$DIR/aquatic-<name>.sh" "$@"` |
 | Node.js commands | `node "$DIR/aquatic-<name>.js" "$@"` |
-| Snippets | `sed` placeholder injection → `pbcopy` |
-| Script dir resolution | `DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` — line 18 |
+| Dev snippets | `AQUATIC_DEV=1` gate + sanitized `sed` injection → `pbcopy` |
+| Script dir resolution | `DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` |
 
 ### Video Commands
 | Command | Script | What it does | Output |
 |---|---|---|---|
-| compress | aquatic-compress.sh | Re-encode at target FPS | `<base>_<fps>fps.mov` |
-| mute | aquatic-mute.sh | Strip audio + set FPS | `<base>_mute.mov` |
-| trim | aquatic-trim.sh | Compress + cut middle section + concat | `<base>_trimmed.mov` |
-| slideshow | aquatic-slideshow.sh | Stitch images into captioned video | `<firstimg>_01fps.mov` |
+| compress | `aquatic-compress.sh` | Re-encode at target FPS | `<base>_<fps>fps.mov` |
+| mute | `aquatic-mute.sh` | Strip audio + set FPS | `<base>_mute.mov` |
+| trim | `aquatic-trim.sh` | Compress + cut middle section + concat | `<base>_trimmed.mov` |
+| flash | `aquatic-flash.sh` | Speed up a middle section and overlay status text | `<base>_<speed>x_<fps>fps.mov` |
+| slideshow | `aquatic-slideshow.sh` | Stitch images into captioned video | `<firstimg>_01fps.mov` |
 
 ### Git Commands
 | Command | Script | What it does |
 |---|---|---|
-| tag | aquatic-platform-mm-tag.sh | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
-| commit-history | aquatic-commit-history.sh | Visualize recent commits per tag (zsh, GraphQL) |
+| tag | `aquatic-platform-mm-tag.sh` | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
+| commit-history | `aquatic-commit-history.sh` | Visualize recent commits per tag (zsh, GraphQL) |
 
 ### Data Commands
 | Command | Script | What it does |
 |---|---|---|
-| net-surcharges | aquatic-platform-mm-net-surcharges.js | Parse CSVs, tally surcharges, `console.table` output |
+| net-surcharges | `aquatic-platform-mm-net-surcharges.js` | Parse CSVs, tally surcharges, `console.table` output |
 
-### Snippet System
+### Dev Snippets
+| Command | File Pattern | What it does |
+|---|---|---|
+| dev | `aquatic-dev-<name>.js` | Copy a dev-only browser JS snippet to the clipboard, optionally injecting sanitized placeholder values |
 
-**Decision: Which snippet pattern?**
+### Dev Snippet System
+
+**Decision: Which dev snippet pattern?**
 ```
-Does the snippet need injected values?
-├─ NO  → Plain JS file. Falls through to cat|pbcopy (aquatic:89).
+Does the dev snippet need injected values?
+├─ NO  → Plain JS file. Falls through to cat|pbcopy in `aquatic`.
 └─ YES → Use ___PLACEHOLDER___ tokens.
-├─ Single placeholder → single sed "s~...~...~g" (see aquatic:54)
-└─ Multiple placeholders → chained sed -e (see aquatic:63-66)
+         Sanitize each user value with sanitize_sed first.
+         ├─ Single placeholder → single sed "s~...~...~g"
+         └─ Multiple placeholders → chained sed -e replacements
 ```
 
 ## Configuration Reference
@@ -189,9 +193,10 @@ There is no config file system. All configuration is via:
 | Method | Where | Example |
 |---|---|---|
 | Positional CLI args | Every script | `aquatic mute /path video.mov 15` |
-| Parameter expansion defaults | Each script's arg section | `FPS="${3:-30}"` in `aquatic-mute.sh:17` |
-| Hardcoded constants | Script header sections | `OWNER="owner"` in `aquatic-commit-history.sh:20` |
-| User configuration block | `aquatic-slideshow.sh:17-38` | `FONT_SIZE`, `WRAP_WIDTH`, `FPS`, `DEBUG_MODE` |
+| Environment variables | Router / dev snippets | `AQUATIC_DEV=1 aquatic dev mm-expand-module` |
+| Parameter expansion defaults | Each script's arg section | `FPS="${3:-30}"` |
+| Hardcoded constants | Script-local config | `FONT="Monaco"` in `aquatic-flash.sh` |
+| User configuration block | `aquatic-slideshow.sh` | `FONT_SIZE`, `WRAP_WIDTH`, `FPS`, `DEBUG_MODE` |
 | Captions data file | `captions.txt` (user-created) | `Filename | Caption text` format, see `captions.example.txt` |
 
 ## Key Files Quick Lookup
@@ -199,18 +204,18 @@ There is no config file system. All configuration is via:
 | When you need to... | Read this file |
 |---|---|
 | Understand how commands are routed | `aquatic` |
-| See how snippets are injected and dispatched | `aquatic:42-91` |
+| See how dev snippets are gated and injected | `aquatic:46-105` |
 | Write a simple Bash video command | `aquatic-mute.sh` |
-| Write a multi-step Bash video command | `aquatic-trim.sh` |
+| Write a multi-stage Bash video command | `aquatic-flash.sh` |
 | Write the most complex Bash command | `aquatic-slideshow.sh` |
 | Write a Git/GitHub command | `aquatic-platform-mm-tag.sh` |
 | Write a zsh command with GraphQL | `aquatic-commit-history.sh` |
 | Write a Node.js data command | `aquatic-platform-mm-net-surcharges.js` |
-| Write the simplest browser snippet | `aquatic-snippet-platform-mm-expand-module.js` |
-| Write a complex async browser snippet | `aquatic-snippet-platform-mm-extract-csv.js` |
-| Understand the header format (Bash) | `aquatic-mute.sh:3-13` |
-| Understand the header format (JS) | `aquatic-platform-mm-net-surcharges.js:3-15` |
-| Understand the header format (snippet) | `aquatic-snippet-platform-mm-expand-module.js:1-9` |
+| Write the simplest dev snippet | `aquatic-dev-mm-expand-module.js` |
+| Write a complex async dev snippet | `aquatic-dev-mm-extract-csv.js` |
+| Understand the header format (Bash) | `.github/copilot-instructions.md` |
+| Understand the header format (JS) | `.github/copilot-instructions.md` |
+| Understand the header format (dev snippet) | `.github/copilot-instructions.md` |
 | See coding standards and rules | `.github/copilot-instructions.md` |
 | See AI/Copilot instructions | `.github/copilot-instructions.md` |
 | See captions data format | `captions.example.txt` |

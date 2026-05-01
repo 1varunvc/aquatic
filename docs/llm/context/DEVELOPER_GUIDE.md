@@ -7,16 +7,16 @@
 
 | I need to create a... | Pattern | Location | Name Pattern |
 |---|---|---|---|
-| New Bash command | Validate → cd → execute → echo Done | `aquatic-<name>.sh` (root) | `aquatic-<command-name>.sh` |
+| New Bash command | Validate → `cd` → execute → log/save output | `aquatic-<name>.sh` (root) | `aquatic-<command-name>.sh` |
 | New Node.js command | `#!/usr/bin/env node`, built-in modules, validate → process → output | `aquatic-<name>.js` (root) | `aquatic-<command-name>.js` |
-| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `aquatic-dev-<name>.js` (root) | `aquatic-dev-<name>.js` |
-| New router entry | `case` block in `aquatic` | `aquatic:20-50` | Match command name string |
+| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `aquatic-dev-<name>.js` (root) + existing `dev)` branch in `aquatic` | `aquatic-dev-<name>.js` |
+| New router entry | `case` block in `aquatic` | `aquatic` | Match the command name string |
 
 ## 1. Project Structure Rules
 
-- All scripts live in the repository root. No subdirectories for commands.
-- The router is `aquatic` (no extension). Sub-scripts have `.sh` or `.js` extensions.
-- Docs go in `docs/agent/` for AI reference; root-level `.md` for users. AI instructions go in `.github/copilot-instructions.md`.
+- All runnable scripts live in the repository root. No subdirectories for commands.
+- The router is `aquatic` (no extension). Bash/Zsh sub-scripts use `.sh`; Node.js commands and dev snippets use `.js`.
+- Human-facing docs live in `docs/`. LLM reference docs live in `docs/llm/context/`. Prompt and agent workflow docs live in `docs/llm/prompts/` and `docs/llm/agent/`. AI instructions live in `.github/copilot-instructions.md`.
 - No `node_modules/`, no `package.json`. Node.js scripts use only built-in modules (`fs`, `path`).
 
 ## 2. File Templates
@@ -38,8 +38,9 @@ set -euo pipefail
 # Requirements: <ffmpeg, gh, jq, etc.>
 ###############################################################################
 
-REQUIRED_ARG="${1:-}"
-OPTIONAL_ARG="${2:-default_value}"
+TARGET_DIR="${1:-}"
+REQUIRED_ARG="${2:-}"
+OPTIONAL_ARG="${3:-default_value}"
 
 if [ -z "$REQUIRED_ARG" ]; then
     echo "Usage: aquatic <command> <required_arg> [optional_arg]"
@@ -52,7 +53,7 @@ cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1;
 
 echo "[OK] Done."
 ```
-**MODEL:** `aquatic-mute.sh`
+**MODEL:** `aquatic-mute.sh` or `aquatic-flash.sh`
 
 ### TEMPLATE: Node.js Command
 ```javascript
@@ -116,6 +117,8 @@ if (!fs.existsSync(arg)) {
         ;;
 ```
 
+**Dev snippets do not get their own top-level `case` entry.** They are routed through the existing `dev)` branch in `aquatic`.
+
 ### TEMPLATE: Router Case Entry (Dev snippet — with placeholders)
 ```bash
         elif [ "$DEV_NAME" = "mm-<name>" ]; then
@@ -136,6 +139,7 @@ if (!fs.existsSync(arg)) {
 | Bash variables | `UPPER_SNAKE_CASE` | `TARGET_DIR`, `FPS`, `BASE_NAME` |
 | JS variables | `camelCase` | `targetDir`, `brandStats` |
 | Video output files | `<base>_<suffix>.mov` | `input_mute.mov`, `input_7fps.mov`, `input_trimmed.mov` |
+| Flash output files | `<base>_<speed>x_<fps>fps.mov` | `input_20x_30fps.mov` |
 | Git tag format | `<version>_r<sha7>` | `1.70.0_rabc1234` |
 | Router command name | lowercase, hyphenated | `commit-history`, `net-surcharges` |
 
@@ -144,7 +148,6 @@ if (!fs.existsSync(arg)) {
 **RULE:** Every script MUST validate required args at the top, before any logic.
 
 ```bash
-# Bash pattern — see aquatic-mute.sh:20-24
 if [ -z "$REQUIRED" ]; then
     echo "Usage: aquatic <command> <required> [optional]"
     exit 1
@@ -152,22 +155,31 @@ fi
 ```
 
 ```javascript
-// Node.js pattern — see aquatic-platform-mm-net-surcharges.js:38-41
 if (!fs.existsSync(directoryPath)) {
     console.error(`[ERROR] Directory not found: ${directoryPath}`);
     process.exit(1);
 }
 ```
 
-**RULE:** Optional args use parameter expansion with defaults:
+**RULE:** Bash/Zsh scripts use strict mode immediately after the shebang.
 ```bash
-FPS="${3:-30}"       # see aquatic-mute.sh:17
+set -euo pipefail
 ```
 
-**RULE:** Always guard `cd`:
+**RULE:** Optional args use parameter expansion with defaults.
+```bash
+FPS="${3:-30}"
+```
+
+**RULE:** Always guard `cd`.
 ```bash
 cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1; }
-# see aquatic-mute.sh:25
+```
+
+**RULE:** Sanitize every user-provided dev snippet replacement value before passing it to `sed`.
+```bash
+PARAM=$(sanitize_sed "${2:-default}")
+sed "s~___PLACEHOLDER___~$PARAM~g" "$DEV_FILE" | pbcopy
 ```
 
 ## 5. Output & Logging Rules
@@ -176,15 +188,18 @@ cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1;
 |---|---|---|
 | `[OK]` | Operation completed successfully | `echo "[OK] Snippet 'mm-expand-module' copied to clipboard!"` |
 | `[INFO]` | Progress or informational | `echo "[INFO] Processed 15 CSV files."` |
+| `[DEBUG]` | Low-level diagnostic detail | `echo "[DEBUG] Using selector: $SELECTOR"` |
+| `[WARN]` | Recoverable issue or fallback | `echo "[WARN] Optional file missing. Using defaults."` |
 | `[ERROR]` | Something failed | `echo "[ERROR] Directory '/tmp' not found."` |
 | `---` separator | Between processing phases | `echo "-----------------------------------"` |
-| `Done.` | End of simple command | `echo "Done. Saved as input_mute.mov"` |
+
+**RULE:** Logs should include useful operation context without redundant noise.
 
 **RULE:** No emojis in any output, log, or comment. Ever.
 
 ## 6. Dependencies & Imports
 
-**RULE:** No `package.json`. No npm dependencies. Node.js scripts use ONLY `fs` and `path`.
+**RULE:** No `package.json`. No npm dependencies. Node.js scripts use ONLY `fs` and `path` unless explicitly approved.
 
 **RULE:** Prefer standard macOS tools: `sed`, `awk`, `stat`, `md5`, `pbcopy`.
 
@@ -193,10 +208,15 @@ cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1;
 ## 7. Adding a New Command — Checklist
 
 1. **CREATE** the sub-script file in the repo root following the appropriate template above.
-2. **ADD** a `case` entry in `aquatic` (before the `*)` default block).
-3. **ADD** a usage line in the help text block (~line 120).
-4. **CHMOD** the file: `chmod +x aquatic-<name>.sh` (Bash scripts only).
-5. For dev snippets: add the snippet name to the error message's "Available:" list (~line 57).
+2. **ADD** a `case` entry in `aquatic` for Bash/Node.js commands.
+3. **ADD** a usage line in the help text block in `aquatic`.
+4. **UPDATE** `README.md` if the command is user-facing.
+5. **CHMOD** the file: `chmod +x aquatic-<name>.sh` (Bash scripts only).
+6. **FOR DEV SNIPPETS:**
+   - Add the snippet name to the `Available:` list inside the existing `dev)` block.
+   - Add an `elif` block only if placeholders need injection.
+   - Sanitize every injected value with `sanitize_sed`.
+   - Keep the snippet behind `AQUATIC_DEV=1`.
 
 ## 8. Things to Never Do
 
@@ -206,9 +226,10 @@ cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1;
 | 2 | No npm dependencies — Node.js built-ins only |
 | 3 | No interactive prompts (stdin) — all input via positional args |
 | 4 | No hardcoded absolute paths to user directories (use `$1` or `$DIR`) |
-| 5 | No writing snippet output to files — always pipe to `pbcopy` |
-| 6 | No `cd` without an error guard |
-| 7 | No missing file header block |
-| 8 | No skipping argument validation at the top of a script |
+| 5 | No writing dev snippet output to files — always pipe to `pbcopy` |
+| 6 | No bypassing `sanitize_sed` when injecting user input into dev snippets |
+| 7 | No bypassing the `AQUATIC_DEV=1` gate for dev snippets |
+| 8 | No `cd` without an error guard |
+| 9 | No missing file header block |
+| 10 | No skipping argument validation at the top of a script |
 ```
-

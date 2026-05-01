@@ -8,9 +8,9 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: March 21, 2026
-# Version     : 3.1
-# Usage       : cd "/path/to/folder"; chmod +x aquatic-slideshow.sh; ./aquatic slideshow [optional/path/to/folder]
+# Last Updated: May 1, 2026
+# Version     : 3.2
+# Usage       : aquatic slideshow [dir] [no-ts] [output_name]
 # Requirements: ffmpeg, md5 (or md5sum)
 ###############################################################################
 
@@ -43,6 +43,9 @@ CAPTION_FILE="captions.txt"
 # ==========================================
 
 TARGET_DIR="${1:-.}"
+DISABLE_TIMESTAMPS="${2:-}"
+CUSTOM_OUTPUT_NAME="${3:-}"
+
 cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1; }
 
 echo "Working directory set to: $(pwd)"
@@ -91,7 +94,7 @@ echo "-----------------------------------"
 if [ "$DEBUG_MODE" = "true" ]; then LOG_OUTPUT="/dev/stdout"; else LOG_OUTPUT="/dev/null"; fi
 
 # Detect Array Start Index
-if [ -n "${caption_files[0]}" ]; then IDX_START=0; else IDX_START=1; fi
+# Removed: caption_files[0] probe can fail under `set -u` when captions are empty.
 
 # --- CALCULATE TOTAL IMAGES FOR COUNTER ---
 TOTAL_IMGS=$(ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | wc -l | xargs)
@@ -116,9 +119,8 @@ ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | while IFS= read -r img; do
     IMG_FINGERPRINT=$(echo "$img" | sed 's/[^[:alnum:]]//g') 
     
     count=${#caption_files[@]}
-    IDX_END=$((IDX_START + count))
 
-    for (( i=IDX_START; i<IDX_END; i++ )); do
+    for (( i=0; i<count; i++ )); do
         CFG_NAME="${caption_files[$i]}"
         KEY_FINGERPRINT=$(echo "$CFG_NAME" | sed 's/[^[:alnum:]]//g')
         
@@ -132,7 +134,9 @@ ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | while IFS= read -r img; do
     VF_CHAIN="scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2"
     
     # 1. Add Timestamp (Bottom Left)
-    VF_CHAIN="$VF_CHAIN,drawtext=fontsize=$FONT_SIZE:fontfile='$FONT_PATH':text='$ESCAPED_DATE':fontcolor=white:shadowcolor=black:shadowx=2:shadowy=2:box=1:boxborderw=10:boxcolor=black@0.6:x=60:y=h-th-30"
+    if [ "$DISABLE_TIMESTAMPS" != "no-ts" ]; then
+        VF_CHAIN="$VF_CHAIN,drawtext=fontsize=$FONT_SIZE:fontfile='$FONT_PATH':text='$ESCAPED_DATE':fontcolor=white:shadowcolor=black:shadowx=2:shadowy=2:box=1:boxborderw=10:boxcolor=black@0.6:x=60:y=h-th-30"
+    fi
 
     # 2. Add Counter (Bottom Right)
     VF_CHAIN="$VF_CHAIN,drawtext=fontsize=$FONT_SIZE:fontfile='$FONT_PATH':text='$COUNTER_TEXT':fontcolor=white:shadowcolor=black:shadowx=2:shadowy=2:box=1:boxborderw=10:boxcolor=black@0.6:x=w-tw-60:y=h-th-30"
@@ -173,17 +177,23 @@ echo "-----------------------------------"
 
 FIRST_IMG=$(ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | head -n 1 | sed 's/\.[^.]*$//')
 
+if [ -n "$CUSTOM_OUTPUT_NAME" ]; then
+    OUTPUT_NAME="$CUSTOM_OUTPUT_NAME"
+else
+    OUTPUT_NAME="${FIRST_IMG}_01fps"
+fi
+
 if [ -f "temp_list.txt" ]; then
     echo "Combining lossless video..."
     ffmpeg -y -nostdin -f concat -safe 0 -i temp_list.txt -c copy "${FIRST_IMG}.mp4" > "$LOG_OUTPUT" 2>&1
     
     echo "Applying final compression pass (${FPS} FPS .mov)..."
-    ffmpeg -y -nostdin -i "${FIRST_IMG}.mp4" -r "$FPS" "${FIRST_IMG}_01fps.mov" > "$LOG_OUTPUT" 2>&1
-    
+    ffmpeg -y -nostdin -i "${FIRST_IMG}.mp4" -r "$FPS" "${OUTPUT_NAME}.mov" > "$LOG_OUTPUT" 2>&1
+
     # Cleanup intermediate files
     rm -rf temp_parts temp_list.txt "${FIRST_IMG}.mp4"
     
-    echo "Done! Final video saved as: ${FIRST_IMG}_01fps.mov"
+    echo "[OK] Final video saved as: ${OUTPUT_NAME}.mov"
 else
     echo "Error: No images were processed."
 fi
