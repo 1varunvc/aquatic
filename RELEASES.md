@@ -1,0 +1,1 @@
+0.1.0|Initial release — a modular, extensible macOS CLI toolkit for automating everyday tasks

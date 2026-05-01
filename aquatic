@@ -1,23 +1,57 @@
 #!/bin/bash
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic
-# Description : Main router for the Aquatic CLI toolkit.
+# Description : Main router for the Aquatic toolkit.
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: March 25, 2026
-# Version     : 2.2
+# Last Updated: May 1, 2026
+# Version     : 0.1.0
 # Usage       : aquatic <command> [arguments]
 # Requirements: macOS (for pbcopy), node, ffmpeg, gh, jq
 ###############################################################################
 
-COMMAND=$1
-shift
-
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CURRENT_VERSION=$(cat "$DIR/VERSION")
+
+# --- UPDATE LOG (shows all versions newer than current from RELEASES.md) ---
+_aquatic_update_notify() {
+    local RELEASES_FILE="$DIR/RELEASES.md"
+    [ -f "$RELEASES_FILE" ] || return 0
+
+    # Show versions that appear AFTER current in the file (newer releases)
+    local SHOW="false"
+    local LINES=()
+    while IFS='|' read -r ver summary; do
+        [ -z "$ver" ] && continue
+        if [ "$ver" = "$CURRENT_VERSION" ]; then
+            SHOW="true"
+            continue
+        fi
+        if [ "$SHOW" = "true" ]; then
+            LINES+=("  $ver — $summary")
+        fi
+    done < "$RELEASES_FILE"
+
+    if [ ${#LINES[@]} -gt 0 ]; then
+        echo "[INFO] Updates available:"
+        for line in "${LINES[@]}"; do
+            echo "$line"
+        done
+    fi
+}
+
+_aquatic_update_notify
+
+COMMAND="${1:-}"
+shift || true
 
 case "$COMMAND" in
+    --version|-v)
+        echo "aquatic $CURRENT_VERSION"
+        ;;
     slideshow)
         "$DIR/aquatic-slideshow.sh" "$@"
         ;;
@@ -25,7 +59,7 @@ case "$COMMAND" in
         "$DIR/aquatic-compress.sh" "$@"
         ;;
     tag)
-        "$DIR/aquatic-platform-mm-tag.sh" "$@"
+        "$DIR/aquatic-git-tag.sh" "$@"
         ;;
     mute)
         "$DIR/aquatic-mute.sh" "$@"
@@ -33,78 +67,95 @@ case "$COMMAND" in
     trim)
         "$DIR/aquatic-trim.sh" "$@"
         ;;
+    xlr8)
+        "$DIR/aquatic-xlr8.sh" "$@"
+        ;;
     commit-history)
         "$DIR/aquatic-commit-history.sh" "$@"
         ;;
-    net-surcharges)
-        node "$DIR/aquatic-platform-mm-net-surcharges.js" "$@"
-        ;;
-    snippet)
-        SNIPPET_NAME=$1
-        SNIPPET_FILE="$DIR/aquatic-snippet-platform-$SNIPPET_NAME.js"
-
-        if [ ! -f "$SNIPPET_FILE" ]; then
-            echo "[ERROR] Snippet '$SNIPPET_NAME' not found."
-            echo "Available: mm-extract-module, mm-expand-module, mm-extract-csv"
+    dev)
+        if [ "${AQUATIC_DEV:-0}" != "1" ]; then
+            echo "[ERROR] Dev-only command. Set AQUATIC_DEV=1 to enable."
             exit 1
         fi
 
-        if [ "$SNIPPET_NAME" = "mm-expand-module" ]; then
-            ICON="${2:-ui-expansion-icon}"
-            sed "s~___EXPANSION_ICON___~$ICON~g" "$SNIPPET_FILE" | pbcopy
-            echo "[OK] Snippet '$SNIPPET_NAME' copied to clipboard!"
+        DEV_NAME="${1:-}"
+        DEV_FILE="$DIR/aquatic-dev-$DEV_NAME.js"
+
+        if [ -z "$DEV_NAME" ] || [ ! -f "$DEV_FILE" ]; then
+            echo "[ERROR] Dev snippet '$DEV_NAME' not found."
+            echo "Available: mm-extract-module, mm-expand-module, mm-extract-csv, mm-net-surcharges"
+            exit 1
+        fi
+
+        sanitize_sed() {
+            printf '%s' "$1" | sed -e 's/[~&/\]/\\&/g'
+        }
+
+        if [ "$DEV_NAME" = "mm-net-surcharges" ]; then
+            shift
+            node "$DEV_FILE" "$@"
+
+        elif [ "$DEV_NAME" = "mm-expand-module" ]; then
+            ICON=$(sanitize_sed "${2:-ui-expansion-icon}")
+            sed "s~___EXPANSION_ICON___~$ICON~g" "$DEV_FILE" | pbcopy
+            echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
             echo "     > Injected Icon: $ICON"
 
-        elif [ "$SNIPPET_NAME" = "mm-extract-csv" ]; then
-            DL_XPATH="${2:-//tbody/tr/td[11]/a[2]}"
-            SPINNER="${3:-div.ngx-spinner-overlay}"
-            NEXT_BTN="${4:-def}"
-            DELAY="${5:-1200}"
+        elif [ "$DEV_NAME" = "mm-extract-csv" ]; then
+            DL_XPATH=$(sanitize_sed "${2:-//tbody/tr/td[11]/a[2]}")
+            SPINNER=$(sanitize_sed "${3:-div.ngx-spinner-overlay}")
+            NEXT_BTN=$(sanitize_sed "${4:-def}")
+            DELAY=$(sanitize_sed "${5:-1200}")
             sed -e "s~___DOWNLOAD_LINKS_XPATH___~$DL_XPATH~g" \
                 -e "s~___SPINNER_SELECTOR___~$SPINNER~g" \
                 -e "s~___NEXT_PAGE_XPATH___~$NEXT_BTN~g" \
-                -e "s~___DELAY___~$DELAY~g" "$SNIPPET_FILE" | pbcopy
-            echo "[OK] Snippet '$SNIPPET_NAME' copied to clipboard!"
+                -e "s~___DELAY___~$DELAY~g" "$DEV_FILE" | pbcopy
+            echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
             echo "     > Injected Download XPath: $DL_XPATH"
 
-        elif [ "$SNIPPET_NAME" = "mm-extract-module" ]; then
-            SUITE="${2:-.suite-header}"
-            CLASS_ROW="${3:-.class-row}"
-            CLASS_LINK="${4:-.col-4.text-end a}"
-            METHOD_ROW="${5:-.col-8 > .row}"
-            METHOD_LINK="${6:-.col-7 a}"
-            OWNER_ELEM="${7:-.col-3 bsr-test-ownership}"
-            TEAM="${8:-mmPay}"
+        elif [ "$DEV_NAME" = "mm-extract-module" ]; then
+            SUITE=$(sanitize_sed "${2:-.suite-header}")
+            CLASS_ROW=$(sanitize_sed "${3:-.class-row}")
+            CLASS_LINK=$(sanitize_sed "${4:-.col-4.text-end a}")
+            METHOD_ROW=$(sanitize_sed "${5:-.col-8 > .row}")
+            METHOD_LINK=$(sanitize_sed "${6:-.col-7 a}")
+            OWNER_ELEM=$(sanitize_sed "${7:-.col-3 bsr-test-ownership}")
+            TEAM=$(sanitize_sed "${8:-mmPay}")
             sed -e "s~___SUITE_HEADER___~$SUITE~g" \
                 -e "s~___CLASS_ROW___~$CLASS_ROW~g" \
                 -e "s~___CLASS_LINK___~$CLASS_LINK~g" \
                 -e "s~___METHOD_ROW___~$METHOD_ROW~g" \
                 -e "s~___METHOD_LINK___~$METHOD_LINK~g" \
                 -e "s~___OWNERSHIP_ELEM___~$OWNER_ELEM~g" \
-                -e "s~___TEAM_NAME___~$TEAM~g" "$SNIPPET_FILE" | pbcopy
-            echo "[OK] Snippet '$SNIPPET_NAME' copied to clipboard!"
+                -e "s~___TEAM_NAME___~$TEAM~g" "$DEV_FILE" | pbcopy
+            echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
             echo "     > Injected Suite Header: $SUITE"
 
         else
-            cat "$SNIPPET_FILE" | pbcopy
-            echo "[OK] Snippet '$SNIPPET_NAME' copied to clipboard!"
+            cat "$DEV_FILE" | pbcopy
+            echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
         fi
         ;;
     *)
         echo "=========================================================="
-        echo "                   AQUATIC CLI TOOLKIT                    "
+        echo "                   AQUATIC (v$CURRENT_VERSION)            "
         echo "=========================================================="
-        echo "Usage: aquatic <command> [args]"
+        echo "Usage: aquatic <command> [options]"
         echo ""
         echo "Commands:"
-        echo "  slideshow      [dir]                      - Build 1-FPS screenshot slideshow"
-        echo "  compress       <dir> <file> [fps]         - Convert video to specific FPS (default 30)"
-        echo "  mute           <dir> <file> [fps]         - Strip audio from video (default 30fps)"
-        echo "  trim           <dir> <file> <start> <end> [fps] - Compress (default 7) and cut middle section"
-        echo "  tag            <owner> <repo> <ver> [br]  - Tag a commit using GitHub CLI"
-        echo "  commit-history [tags] [commits] [br]      - Visualize Git commit history by tag"
-        echo "  net-surcharges [dir]                      - Parse CSVs and tally surcharge stats"
-        echo "  snippet        <name> [args...]           - Copy a parameterized JS snippet to clipboard"
+        echo "  slideshow      <file>... [--no-timestamps] [--output <name>]  - Build 1-FPS screenshot slideshow"
+        echo "  compress       <file> [--fps <n>]                             - Convert video to specific FPS (default 30)"
+        echo "  mute           <file> [--fps <n>]                             - Strip audio from video (default 30fps)"
+        echo "  trim           <file> --start <t> --end <t> [--fps <n>]       - Compress and cut middle section"
+        echo "  xlr8          <file> --start <t> --end <t> [--speed <n>] [--fps <n>] - Speed up a section"
+        echo "  tag            <owner> <repo> <version> [--branch <b>]        - Tag a commit using GitHub CLI"
+        echo "  commit-history [--tags <n>] [--commits <n>] [--branch <b>]    - Visualize Git commit history by tag"
+        echo "  dev            <name> [args...]                               - Copy dev-only JS snippet (AQUATIC_DEV=1)"
+        echo ""
+        echo "Global Options:"
+        echo "  --version, -v  Show version"
+        echo "  --help, -h     Show this help"
         echo "=========================================================="
         ;;
 esac

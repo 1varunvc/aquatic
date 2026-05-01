@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+set -euo pipefail
 
 ###############################################################################
 # Script Name : aquatic-commit-history.sh
@@ -6,16 +7,35 @@
 #
 # Author      : Varun Chawla
 # Created On  : October 19, 2025
-# Last Updated: March 21, 2026
-# Version     : 1.3
-# Usage       : cd "/path/to/folder"; chmod +x aquatic-commit-history.sh; ./aquatic commit-history [num_tags] [commits] [base_branch]
+# Last Updated: May 1, 2026
+# Usage       : aquatic commit-history [--tags <n>] [--commits <n>] [--branch <b>]
 # Requirements: gh (GitHub CLI), jq
 ###############################################################################
-# Lists latest tags with recent commits; aligned columns; bold headers; colored verdicts; local time with "Nov." month style.
 
-NUM_TAGS="${1:-2}"
-COMMITS="${2:-10}"
-BASE_BRANCH="${3:-develop}"
+NUM_TAGS="2"
+COMMITS="10"
+BASE_BRANCH="develop"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --tags) NUM_TAGS="$2"; shift 2 ;;
+        --commits) COMMITS="$2"; shift 2 ;;
+        --branch|-b) BASE_BRANCH="$2"; shift 2 ;;
+        --help|-h)
+            echo "Usage: aquatic commit-history [--tags <n>] [--commits <n>] [--branch <b>]"
+            echo ""
+            echo "Options:"
+            echo "  --tags <n>      Number of tags to display (default: 2)"
+            echo "  --commits <n>   Commits per tag (default: 10)"
+            echo "  --branch <b>    Base branch (default: develop)"
+            exit 0
+            ;;
+        -*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
+        *) shift ;;
+    esac
+done
+
+# Lists latest tags with recent commits; aligned columns; bold headers; colored verdicts; local time with "Nov." month style.
 
 OWNER="owner"
 REPO="repo"
@@ -70,25 +90,6 @@ TAGS_DATA=$(
       }'
 )
 
-# Fetch base branch commits via GraphQL for consistent fields
-BASE_DATA=$(
-  gh api graphql \
-    -f owner="$OWNER" -f name="$REPO" -f qualifiedName="refs/heads/$BASE_BRANCH" \
-    -f query='
-      query($owner:String!, $name:String!, $qualifiedName:String!){
-        repository(owner:$owner, name:$name){
-          ref(qualifiedName:$qualifiedName){
-            target{
-              ... on Commit {
-                history(first:'"$COMMITS"'){
-                  nodes{ abbreviatedOid committedDate messageHeadline author { name user { login } } }
-                }
-              }
-            }
-          }
-        }
-      }'
-)
 
 # Latest tag tip; and whether base is ahead of latest tag
 LATEST_TAG_OID=$(jq -r '.data.repository.refs.nodes[0] | (.target.oid // .target.target.oid)' <<<"$TAGS_DATA")

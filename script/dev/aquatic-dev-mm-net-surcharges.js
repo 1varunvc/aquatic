@@ -2,15 +2,14 @@
 
 /**
  * ###############################################################################
- * Script Name : aquatic-platform-mm-net-surcharges.js
+ * Script Name : aquatic-dev-mm-net-surcharges.js
  * Description : Parses CSV files in a directory to compute surcharge statistics.
  *
  * Author      : Varun Chawla
  * Created On  : March 21, 2026
- * Last Updated: March 21, 2026
- * Version     : 1.0
- * Usage       : cd "/path/to/folder"; chmod +x aquatic-platform-mm-net-surcharges.js; ./aquatic net-surcharges [optional/path/to/csv/folder]
- * Requirements: node
+ * Last Updated: May 1, 2026
+ * Usage       : aquatic dev mm-net-surcharges [optional/path/to/csv/folder]
+ * Requirements: node, AQUATIC_DEV=1
  * ###############################################################################
  */
 
@@ -146,6 +145,7 @@ function processSurcharges(directoryPath) {
         'Refunds($)': currencyFormatter.format(row.refundsAmt),
         'Net Number': row.netNumber,
         'Net Sales($)': currencyFormatter.format(row.netSales),
+        'Average Ticket ($)': row.sales > 0 ? currencyFormatter.format(row.salesAmt / row.sales) : currencyFormatter.format(0),
         'Net Surcharges ($)': currencyFormatter.format(row.netSurcharge)
     }));
 
@@ -157,6 +157,7 @@ function processSurcharges(directoryPath) {
         'Refunds($)': currencyFormatter.format(totals.refundsAmt),
         'Net Number': totals.netNumber,
         'Net Sales($)': currencyFormatter.format(totals.netSales),
+        'Average Ticket ($)': totals.salesCount > 0 ? currencyFormatter.format(totals.salesAmt / totals.salesCount) : currencyFormatter.format(0),
         'Net Surcharges ($)': currencyFormatter.format(totals.netSurcharge)
     });
 
