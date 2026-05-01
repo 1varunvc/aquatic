@@ -77,7 +77,7 @@ If you added a command:
 
 ```bash
 git add .
-git commit -m "feat: add flash command for video speedup"
+git commit -m "feat: add xlr8 command for video speedup"
 git push origin feature/my-cool-feature
 ```
 

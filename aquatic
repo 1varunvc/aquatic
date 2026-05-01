@@ -67,8 +67,8 @@ case "$COMMAND" in
     trim)
         "$DIR/aquatic-trim.sh" "$@"
         ;;
-    flash)
-        "$DIR/aquatic-flash.sh" "$@"
+    xlr8)
+        "$DIR/aquatic-xlr8.sh" "$@"
         ;;
     commit-history)
         "$DIR/aquatic-commit-history.sh" "$@"
@@ -147,7 +147,7 @@ case "$COMMAND" in
         echo "  compress       <file> [--fps <n>]                             - Convert video to specific FPS (default 30)"
         echo "  mute           <file> [--fps <n>]                             - Strip audio from video (default 30fps)"
         echo "  trim           <file> --start <t> --end <t> [--fps <n>]       - Compress and cut middle section"
-        echo "  flash          <file> --start <t> --end <t> [--speed <n>] [--fps <n>] - Speed up a section"
+        echo "  xlr8          <file> --start <t> --end <t> [--speed <n>] [--fps <n>] - Speed up a section"
         echo "  tag            <owner> <repo> <version> [--branch <b>]        - Tag a commit using GitHub CLI"
         echo "  commit-history [--tags <n>] [--commits <n>] [--branch <b>]    - Visualize Git commit history by tag"
         echo "  net-surcharges [dir]                                          - Parse CSVs and tally surcharge stats"

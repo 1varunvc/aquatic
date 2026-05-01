@@ -45,7 +45,7 @@ aquatic compress recording.mov --fps 7
 aquatic trim recording.mov --start 00:00:58 --end 00:01:05 --fps 7
 
 # Speed up a section 20x, output at 30 FPS
-aquatic flash recording.mov --start 00:00:22 --end 00:01:14 --speed 20.0 --fps 30
+aquatic xlr8 recording.mov --start 00:00:22 --end 00:01:14 --speed 20.0 --fps 30
 
 # Build slideshow from images, no timestamps, custom output name
 aquatic slideshow /path/to/images --no-timestamps --output my-slideshow
@@ -53,10 +53,10 @@ aquatic slideshow /path/to/images --no-timestamps --output my-slideshow
 
 | Flag | Used By | Description |
 |------|---------|-------------|
-| `--fps <n>` | mute, compress, trim, flash | Output frame rate |
-| `--start <time>` | trim, flash | Start time of the section (HH:MM:SS) |
-| `--end <time>` | trim, flash | End time of the section (HH:MM:SS) |
-| `--speed <n>` | flash | Speedup multiplier (default: 20.0) |
+| `--fps <n>` | mute, compress, trim, xlr8 | Output frame rate |
+| `--start <time>` | trim, xlr8 | Start time of the section (HH:MM:SS) |
+| `--end <time>` | trim, xlr8 | End time of the section (HH:MM:SS) |
+| `--speed <n>` | xlr8 | Speedup multiplier (default: 20.0) |
 | `--no-timestamps` | slideshow | Disable timestamp overlay |
 | `--output <name>` | slideshow | Custom output filename (without .mov extension) |
 
@@ -139,4 +139,4 @@ See [SECURITY.md](docs/SECURITY.md) for the security policy and vulnerability re
 
 ## License
 
-[MIT](LICENSE)
+TBA: [LICENSE](LICENSE)

@@ -2,14 +2,14 @@
 set -euo pipefail
 
 ###############################################################################
-# Script Name : aquatic-flash.sh
+# Script Name : aquatic-xlr8.sh
 # Description : Speeds up a section of a video with overlay text and concats
 #               the pre/post sections at normal speed.
 #
 # Author      : Varun Chawla
 # Created On  : April 24, 2026
 # Last Updated: May 1, 2026
-# Usage       : aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]
+# Usage       : aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>]
 # Requirements: ffmpeg
 ###############################################################################
 
@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
         --speed) SPEED="$2"; shift 2 ;;
         --fps) FPS="$2"; shift 2 ;;
         --help|-h)
-            echo "Usage: aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
+            echo "Usage: aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
             echo ""
             echo "Arguments:"
             echo "  <file>           Video file to process"
@@ -46,7 +46,7 @@ done
 FILENAME="${POSITIONAL[0]:-}"
 
 if [ -z "$FILENAME" ] || [ -z "$START_TIME" ] || [ -z "$END_TIME" ]; then
-    echo "Usage: aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
+    echo "Usage: aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
     exit 1
 fi
 

@@ -53,7 +53,7 @@ cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1;
 
 echo "[OK] Done."
 ```
-**MODEL:** `aquatic-mute.sh` or `aquatic-flash.sh`
+**MODEL:** `aquatic-mute.sh` or `aquatic-xlr8.sh`
 
 ### TEMPLATE: Node.js Command
 ```javascript
@@ -139,7 +139,7 @@ if (!fs.existsSync(arg)) {
 | Bash variables | `UPPER_SNAKE_CASE` | `TARGET_DIR`, `FPS`, `BASE_NAME` |
 | JS variables | `camelCase` | `targetDir`, `brandStats` |
 | Video output files | `<base>_<suffix>.mov` | `input_mute.mov`, `input_7fps.mov`, `input_trimmed.mov` |
-| Flash output files | `<base>_<speed>x_<fps>fps.mov` | `input_20x_30fps.mov` |
+| xlr8 output files | `<base>_<speed>x_<fps>fps.mov` | `input_20x_30fps.mov` |
 | Git tag format | `<version>_r<sha7>` | `1.70.0_rabc1234` |
 | Router command name | lowercase, hyphenated | `commit-history`, `net-surcharges` |
 

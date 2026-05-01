@@ -14,14 +14,14 @@
 
 **Files updated:** 8 total
 
-### 2. New `aquatic-flash.sh` Command
+### 2. New `aquatic-xlr8.sh` Command
 - ✅ Created video speedup command with overlay text
 - ✅ 3-part ffmpeg filter_complex (pre-speedup, speedup+text, post-speedup)
 - ✅ Output naming: `<base>_<speed>x_<fps>fps.mov`
 - ✅ Wired into router with help text
 - ✅ Proper error handling and validation
 
-**File:** `aquatic-flash.sh` (80 lines)
+**File:** `aquatic-xlr8.sh` (80 lines)
 
 ### 3. Dev Snippet System
 - ✅ Renamed: `aquatic-snippet-platform-*.js` → `aquatic-dev-*.js`
@@ -77,7 +77,7 @@
 
 | File | Purpose |
 |------|---------|
-| `aquatic-flash.sh` | Video speedup command |
+| `aquatic-xlr8.sh` | Video speedup command |
 | `LICENSE` | AGPL-3.0 legal text |
 | `SECURITY.md` | Vulnerability reporting, safety guarantees |
 | `CHANGELOG.md` | Version history |
@@ -97,7 +97,7 @@
 
 | File | Changes |
 |------|---------|
-| `aquatic` | Added `set -euo pipefail`, flash case entry, dev case (replaces snippet), help text, sed sanitization |
+| `aquatic` | Added `set -euo pipefail`, xlr8 case entry, dev case (replaces snippet), help text, sed sanitization |
 | `aquatic-*.sh` (7 files) | Added `set -euo pipefail`, fixed `${VAR:-}` for all positional args |
 | `README.md` | Expanded with installation, commands table, usage examples |
 | `aquatic-dev-*.js` (3 files) | Renamed from `aquatic-snippet-platform-*` |
@@ -109,9 +109,9 @@
 ## Testing Performed
 
 ✅ Bash syntax validation: `bash -n aquatic aquatic-*.sh`  
-✅ Router help text: Shows all commands including `flash` and `dev`  
+✅ Router help text: Shows all commands including `xlr8` and `dev`  
 ✅ Dev gate: `AQUATIC_DEV=1` required, error shown without it  
-✅ Flash usage: Proper error message when args missing  
+✅ xlr8 usage: Proper error message when args missing  
 ✅ All other commands: Tested with missing args (proper validation)
 
 ---
@@ -142,7 +142,7 @@
 
 | Metric | Value |
 |--------|-------|
-| New commands | 1 (flash) |
+| New commands | 1 (xlr8) |
 | Existing commands maintained | 8 |
 | Security enhancements | 5 |
 | New documentation files | 6 |

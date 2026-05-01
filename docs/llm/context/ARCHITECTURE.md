@@ -19,7 +19,7 @@
 
 | Dependency | Used By | Purpose |
 |---|---|---|
-| ffmpeg | slideshow, compress, mute, trim, flash | Video processing (FPS, mute, trim, concat, speed-up overlays) |
+| ffmpeg | slideshow, compress, mute, trim, xlr8 | Video processing (FPS, mute, trim, concat, speed-up overlays) |
 | gh (GitHub CLI) | tag, commit-history | GitHub API calls (tags, commits, branches) |
 | jq | commit-history | JSON parsing of GitHub API responses |
 | node | net-surcharges | Run Node.js data-processing scripts |
@@ -38,7 +38,7 @@ aquatic/
 ├── aquatic-compress.sh                            # Bash video command
 ├── aquatic-mute.sh                                # Bash video command
 ├── aquatic-trim.sh                                # Bash video command
-├── aquatic-flash.sh                               # Bash video command
+├── aquatic-xlr8.sh                               # Bash video command
 ├── aquatic-platform-mm-tag.sh                     # Bash Git/GitHub command
 ├── aquatic-commit-history.sh                      # Zsh Git/GitHub command
 ├── aquatic-platform-mm-net-surcharges.js          # Node.js data command
@@ -71,7 +71,7 @@ aquatic/
 |---|---|
 | `aquatic` | ENTRY_POINT |
 | `aquatic-compress.sh`, `aquatic-mute.sh`, `aquatic-trim.sh` | COMMAND:VIDEO |
-| `aquatic-flash.sh`, `aquatic-slideshow.sh` | COMMAND:VIDEO (complex) |
+| `aquatic-xlr8.sh`, `aquatic-slideshow.sh` | COMMAND:VIDEO (complex) |
 | `aquatic-platform-mm-tag.sh` | COMMAND:GIT |
 | `aquatic-commit-history.sh` | COMMAND:GIT (complex, zsh) |
 | `aquatic-platform-mm-net-surcharges.js` | COMMAND:DATA |
@@ -88,7 +88,7 @@ aquatic/
 |---|---|---|---|
 | ENTRY_POINT | Case-statement router; `$1` = command, `shift`, dispatch to sub-script or `dev)` branch | `aquatic:21-122` | Every top-level command is a `case` entry; dev snippets are routed through the single `dev)` branch |
 | COMMAND:VIDEO | Validate args → `cd` with guard → `ffmpeg` pipeline → log/save output | `aquatic-mute.sh:16-29` | Args are positional; optional values use `${N:-default}`; output names follow the video naming rules |
-| COMMAND:VIDEO (complex) | Multi-stage `ffmpeg` filter graph with validation and contextual logging | `aquatic-flash.sh:17-86` | Use for advanced video transforms such as speed changes and overlays |
+| COMMAND:VIDEO (complex) | Multi-stage `ffmpeg` filter graph with validation and contextual logging | `aquatic-xlr8.sh:17-86` | Use for advanced video transforms such as speed changes and overlays |
 | COMMAND:GIT | Validate args → `gh api` call → format/output | `aquatic-platform-mm-tag.sh:20-35` | Uses `gh api` + `jq`; no interactive prompts |
 | COMMAND:DATA | `#!/usr/bin/env node`; built-in `fs`/`path` only; validate dir → process → `console.table` | `aquatic-platform-mm-net-surcharges.js:17-169` | No npm dependencies |
 | DEV_SNIPPET | Header → JS code with `___PLACEHOLDER___` tokens; no `#!/` shebang | `aquatic-dev-mm-expand-module.js:1-11` | Placeholders = `___UPPER_SNAKE_CASE___`; router injects via sanitized `sed`, then pipes to `pbcopy` |
@@ -98,16 +98,16 @@ aquatic/
 | Concern | Mechanism | Key File(s) |
 |---|---|---|
 | Routing/dispatch | Bash `case` statement; `$1` = command, `shift` passes remaining args | `aquatic:21-122` |
-| Strict shell mode | `set -euo pipefail` at the top of Bash/Zsh scripts | `aquatic:1-2`, `aquatic-flash.sh:1-2` |
+| Strict shell mode | `set -euo pipefail` at the top of Bash/Zsh scripts | `aquatic:1-2`, `aquatic-xlr8.sh:1-2` |
 | File header | Mandatory block: Script Name, Description, Author, dates, Version, Usage, Requirements | See `.github/copilot-instructions.md` |
-| Arg validation | `if [ -z "$VAR" ]; then echo "Usage: ..."; exit 1; fi` at the top of scripts | `aquatic-flash.sh:24-27`, `aquatic-mute.sh:20-23` |
-| Optional arg defaults | Bash parameter expansion `${N:-default}` | `aquatic-flash.sh:18-22`, `aquatic-mute.sh:16-18` |
-| Directory guard | `cd "$DIR" || { echo "[ERROR] ..."; exit 1; }` | `aquatic-flash.sh:30`, `aquatic-mute.sh:26` |
+| Arg validation | `if [ -z "$VAR" ]; then echo "Usage: ..."; exit 1; fi` at the top of scripts | `aquatic-xlr8.sh:24-27`, `aquatic-mute.sh:20-23` |
+| Optional arg defaults | Bash parameter expansion `${N:-default}` | `aquatic-xlr8.sh:18-22`, `aquatic-mute.sh:16-18` |
+| Directory guard | `cd "$DIR" || { echo "[ERROR] ..."; exit 1; }` | `aquatic-xlr8.sh:30`, `aquatic-mute.sh:26` |
 | Dev gate | `if [ "${AQUATIC_DEV:-0}" != "1" ]; then ...` before dev snippet execution | `aquatic:46-50` |
 | Placeholder sanitization | `sanitize_sed()` escapes user-provided replacement values before `sed` injection | `aquatic:61-63` |
 | Clipboard output | Generated dev snippet output is always piped to `pbcopy` | `aquatic:67-103` |
 | Logging format | `[OK]`, `[INFO]`, `[DEBUG]`, `[WARN]`, `[ERROR]`; no emojis | See `.github/copilot-instructions.md` |
-| Output naming (video) | `<base>_<suffix>.mov` (`_mute`, `_trimmed`, `_<fps>fps`, `_<speed>x_<fps>fps`, `_01fps`) | `aquatic-mute.sh:28-29`, `aquatic-flash.sh:37-38` |
+| Output naming (video) | `<base>_<suffix>.mov` (`_mute`, `_trimmed`, `_<fps>fps`, `_<speed>x_<fps>fps`, `_01fps`) | `aquatic-mute.sh:28-29`, `aquatic-xlr8.sh:37-38` |
 
 ## PRIORITIZED FILE LIST
 
@@ -121,7 +121,7 @@ aquatic/
 - **SKIP:** `aquatic-compress.sh` — similar to mute with FPS-focused output naming
 
 ### COMMAND (Bash — complex)
-- **MUST-READ:** `aquatic-flash.sh` — advanced ffmpeg filter graph, validation, and contextual logging
+- **MUST-READ:** `aquatic-xlr8.sh` — advanced ffmpeg filter graph, validation, and contextual logging
 - **NICE-TO-READ:** `aquatic-slideshow.sh` — most complex Bash script (config section, caption loading, loop, ffmpeg filter chains)
 
 ### COMMAND (Git)

@@ -4,9 +4,9 @@ This plan covers seven areas: (1) adding a new `speedup` video command, (2) rena
 
 ---
 
-## 1. New Command: `aquatic-flash.sh`
+## 1. New Command: `aquatic-xlr8.sh`
 
-Create `aquatic-flash.sh` modeled after `aquatic-trim.sh`:
+Create `aquatic-xlr8.sh` modeled after `aquatic-trim.sh`:
 
 - **Args:** `$1` = directory, `$2` = filename, `$3` = start time (HH:MM:SS), `$4` = end time (HH:MM:SS), `$5` = speed (default `20.0`), `$6` = FPS (default `30`)
 - **Output naming:** `<base>_<speed>x_<fps>fps.mov` (fixes the original — uses both speed and FPS variables dynamically)
@@ -82,7 +82,7 @@ Current gaps and required fixes:
 ## Implementation Steps (Ordered)
 
 1. **Add `set -euo pipefail`** after the shebang in all `.sh` files and `aquatic`.
-2. **Create** `aquatic-flash.sh` and wire it into the router + help text.
+2. **Create** `aquatic-xlr8.sh` and wire it into the router + help text.
 3. **Rename** `snippet)` to `dev)` in the router, rename snippet files from `aquatic-snippet-platform-*` to `aquatic-dev-*`, update all references.
 4. **Sanitize** sed inputs in the `dev)` block with an escape function.
 5. **Restructure docs:** flatten `docs/agent/` → `docs/ARCHITECTURE.md`, create root `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, expand `README.md`.

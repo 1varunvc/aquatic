@@ -29,13 +29,13 @@ All notable changes to this project are documented in this file.
 
 ### What's New
 
-- Added `flash` command for speeding up video sections with an overlay indicator.
+- Added `xlr8` command for speeding up video sections with an overlay indicator.
 - Dev snippets now require `AQUATIC_DEV=1` (safer default).
 - Strict error handling across all scripts prevents silent failures.
 
 ### Technical Details
 
-- `flash` command: multi-stage ffmpeg filter graph with speed overlay and concat.
+- `xlr8` command: multi-stage ffmpeg filter graph with speed overlay and concat.
 - `dev` command replaces `snippet`; gated behind `AQUATIC_DEV=1`.
 - `set -euo pipefail` added to all Bash scripts.
 - Input sanitization for `sed` placeholder injection in dev snippets.

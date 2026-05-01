@@ -17,7 +17,7 @@ User runs: aquatic <command> [args...]
 ▼
 aquatic (Bash router) ─── $1 = COMMAND, shift
 │
-├── case: slideshow|compress|mute|trim|flash|tag|commit-history
+├── case: slideshow|compress|mute|trim|xlr8|tag|commit-history
 │       → "$DIR/aquatic-<command>.sh" "$@"
 │
 ├── case: net-surcharges
@@ -60,7 +60,7 @@ WIRE:
    ;;
 2. aquatic — add usage line in help text
 
-MODEL: aquatic-mute.sh (simple) or aquatic-flash.sh (multi-stage)
+MODEL: aquatic-mute.sh (simple) or aquatic-xlr8.sh (multi-stage)
 
 VERIFY: chmod +x aquatic-<name>.sh && aquatic <name> <test-args>
 ```
@@ -155,7 +155,7 @@ VERIFY: AQUATIC_DEV=1 aquatic dev <name> [args] → pbpaste to inspect output
 | compress | `aquatic-compress.sh` | Re-encode at target FPS | `<base>_<fps>fps.mov` |
 | mute | `aquatic-mute.sh` | Strip audio + set FPS | `<base>_mute.mov` |
 | trim | `aquatic-trim.sh` | Compress + cut middle section + concat | `<base>_trimmed.mov` |
-| flash | `aquatic-flash.sh` | Speed up a middle section and overlay status text | `<base>_<speed>x_<fps>fps.mov` |
+| xlr8 | `aquatic-xlr8.sh` | Speed up a middle section and overlay status text | `<base>_<speed>x_<fps>fps.mov` |
 | slideshow | `aquatic-slideshow.sh` | Stitch images into captioned video | `<firstimg>_01fps.mov` |
 
 ### Git Commands
@@ -195,7 +195,7 @@ There is no config file system. All configuration is via:
 | Positional CLI args | Every script | `aquatic mute /path video.mov 15` |
 | Environment variables | Router / dev snippets | `AQUATIC_DEV=1 aquatic dev mm-expand-module` |
 | Parameter expansion defaults | Each script's arg section | `FPS="${3:-30}"` |
-| Hardcoded constants | Script-local config | `FONT="Monaco"` in `aquatic-flash.sh` |
+| Hardcoded constants | Script-local config | `FONT="Monaco"` in `aquatic-xlr8.sh` |
 | User configuration block | `aquatic-slideshow.sh` | `FONT_SIZE`, `WRAP_WIDTH`, `FPS`, `DEBUG_MODE` |
 | Captions data file | `captions.txt` (user-created) | `Filename | Caption text` format, see `captions.example.txt` |
 
@@ -206,7 +206,7 @@ There is no config file system. All configuration is via:
 | Understand how commands are routed | `aquatic` |
 | See how dev snippets are gated and injected | `aquatic:46-105` |
 | Write a simple Bash video command | `aquatic-mute.sh` |
-| Write a multi-stage Bash video command | `aquatic-flash.sh` |
+| Write a multi-stage Bash video command | `aquatic-xlr8.sh` |
 | Write the most complex Bash command | `aquatic-slideshow.sh` |
 | Write a Git/GitHub command | `aquatic-platform-mm-tag.sh` |
 | Write a zsh command with GraphQL | `aquatic-commit-history.sh` |
