@@ -1,1 +1,1 @@
-0.1.0|Introduced flag-based commands with --help support and update notifications
+0.1.0|Initial release — a modular, extensible macOS CLI toolkit for automating everyday tasks
