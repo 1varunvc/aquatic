@@ -22,12 +22,12 @@
 | ffmpeg | slideshow, compress, mute, trim, xlr8 | Video processing (FPS, mute, trim, concat, speed-up overlays) |
 | gh (GitHub CLI) | tag, commit-history | GitHub API calls (tags, commits, branches) |
 | jq | commit-history | JSON parsing of GitHub API responses |
-| node | net-surcharges | Run Node.js data-processing scripts |
+| node | dev (mm-net-surcharges) | Run Node.js data-processing scripts |
 | pbcopy | dev (router) | Copy dev snippets to the macOS clipboard |
 | sed | dev (router), slideshow | Placeholder injection, sanitization escaping, text escaping |
 | md5 | slideshow | Generate safe filenames from image names |
 | stat | slideshow | Extract file timestamps (macOS `-f` flag) |
-| fs, path | aquatic-platform-mm-net-surcharges.js | Node.js built-in modules for file/CSV parsing |
+| fs, path | aquatic-dev-mm-net-surcharges.js | Node.js built-in modules for file/CSV parsing |
 
 ## FILE MAP
 
@@ -39,9 +39,9 @@ aquatic/
 ├── aquatic-mute.sh                                # Bash video command
 ├── aquatic-trim.sh                                # Bash video command
 ├── aquatic-xlr8.sh                               # Bash video command
-├── aquatic-platform-mm-tag.sh                     # Bash Git/GitHub command
+├── aquatic-git-tag.sh                     # Bash Git/GitHub command
 ├── aquatic-commit-history.sh                      # Zsh Git/GitHub command
-├── aquatic-platform-mm-net-surcharges.js          # Node.js data command
+├── aquatic-dev-mm-net-surcharges.js               # Dev Node.js data command
 ├── aquatic-dev-mm-expand-module.js                # Dev snippet
 ├── aquatic-dev-mm-extract-csv.js                  # Dev snippet
 ├── aquatic-dev-mm-extract-module.js               # Dev snippet
@@ -72,9 +72,9 @@ aquatic/
 | `aquatic` | ENTRY_POINT |
 | `aquatic-compress.sh`, `aquatic-mute.sh`, `aquatic-trim.sh` | COMMAND:VIDEO |
 | `aquatic-xlr8.sh`, `aquatic-slideshow.sh` | COMMAND:VIDEO (complex) |
-| `aquatic-platform-mm-tag.sh` | COMMAND:GIT |
+| `aquatic-git-tag.sh` | COMMAND:GIT |
 | `aquatic-commit-history.sh` | COMMAND:GIT (complex, zsh) |
-| `aquatic-platform-mm-net-surcharges.js` | COMMAND:DATA |
+| `aquatic-dev-mm-net-surcharges.js` | DEV_SNIPPET:DATA |
 | `aquatic-dev-mm-expand-module.js` | DEV_SNIPPET |
 | `aquatic-dev-mm-extract-csv.js` | DEV_SNIPPET (complex) |
 | `aquatic-dev-mm-extract-module.js` | DEV_SNIPPET |
@@ -89,8 +89,8 @@ aquatic/
 | ENTRY_POINT | Case-statement router; `$1` = command, `shift`, dispatch to sub-script or `dev)` branch | `aquatic:21-122` | Every top-level command is a `case` entry; dev snippets are routed through the single `dev)` branch |
 | COMMAND:VIDEO | Validate args → `cd` with guard → `ffmpeg` pipeline → log/save output | `aquatic-mute.sh:16-29` | Args are positional; optional values use `${N:-default}`; output names follow the video naming rules |
 | COMMAND:VIDEO (complex) | Multi-stage `ffmpeg` filter graph with validation and contextual logging | `aquatic-xlr8.sh:17-86` | Use for advanced video transforms such as speed changes and overlays |
-| COMMAND:GIT | Validate args → `gh api` call → format/output | `aquatic-platform-mm-tag.sh:20-35` | Uses `gh api` + `jq`; no interactive prompts |
-| COMMAND:DATA | `#!/usr/bin/env node`; built-in `fs`/`path` only; validate dir → process → `console.table` | `aquatic-platform-mm-net-surcharges.js:17-169` | No npm dependencies |
+| COMMAND:GIT | Validate args → `gh api` call → format/output | `aquatic-git-tag.sh:20-35` | Uses `gh api` + `jq`; no interactive prompts |
+| COMMAND:DATA | `#!/usr/bin/env node`; built-in `fs`/`path` only; validate dir → process → `console.table` | `aquatic-dev-mm-net-surcharges.js:17-169` | No npm dependencies |
 | DEV_SNIPPET | Header → JS code with `___PLACEHOLDER___` tokens; no `#!/` shebang | `aquatic-dev-mm-expand-module.js:1-11` | Placeholders = `___UPPER_SNAKE_CASE___`; router injects via sanitized `sed`, then pipes to `pbcopy` |
 
 ## CROSS-CUTTING CONCERNS TABLE
@@ -125,11 +125,11 @@ aquatic/
 - **NICE-TO-READ:** `aquatic-slideshow.sh` — most complex Bash script (config section, caption loading, loop, ffmpeg filter chains)
 
 ### COMMAND (Git)
-- **MUST-READ:** `aquatic-platform-mm-tag.sh` — canonical `gh api` usage, tag format `<ver>_r<sha7>`
+- **MUST-READ:** `aquatic-git-tag.sh` — canonical `gh api` usage, tag format `<ver>_r<sha7>`
 - **NICE-TO-READ:** `aquatic-commit-history.sh` — zsh arrays, GraphQL via `gh api`, column formatting
 
 ### COMMAND (Node.js)
-- **MUST-READ:** `aquatic-platform-mm-net-surcharges.js` — canonical Node.js command (built-in modules only, CSV parsing, `console.table`)
+- **MUST-READ:** `aquatic-dev-mm-net-surcharges.js` — canonical Node.js command (built-in modules only, CSV parsing, `console.table`)
 
 ### DEV SNIPPET
 - **MUST-READ:** `aquatic-dev-mm-expand-module.js` — simplest dev snippet (single placeholder)

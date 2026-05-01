@@ -76,18 +76,14 @@ aquatic commit-history --tags 3 --commits 5 --branch main
 | `--tags <n>` | commit-history | Number of tags to display (default: 2) |
 | `--commits <n>` | commit-history | Commits shown per tag (default: 10) |
 
-### Data Commands
+### Dev Commands
+
+Dev commands require `AQUATIC_DEV=1` set **every time** you run them.
 
 ```bash
 # Parse CSVs in current directory
-aquatic net-surcharges .
-```
+AQUATIC_DEV=1 aquatic dev mm-net-surcharges .
 
-### Dev Commands
-
-Dev commands require `AQUATIC_DEV=1` set **every time** you run them. They copy browser JS snippets to your clipboard.
-
-```bash
 # Expand module snippet with custom icon
 AQUATIC_DEV=1 aquatic dev mm-expand-module ui-expansion-icon
 
@@ -98,7 +94,7 @@ AQUATIC_DEV=1 aquatic dev mm-extract-csv "//tbody/tr/td[11]/a[2]"
 AQUATIC_DEV=1 aquatic dev mm-extract-module
 ```
 
-Available dev snippets: `mm-expand-module`, `mm-extract-csv`, `mm-extract-module`
+Available dev snippets: `mm-expand-module`, `mm-extract-csv`, `mm-extract-module`, `mm-net-surcharges`
 
 ### Global Options
 
@@ -124,8 +120,8 @@ Each line is a version you haven't updated to yet, with a one-sentence summary. 
 | Type | Pattern | Example |
 |------|---------|---------|
 | Bash command | `aquatic-<name>.sh` | `aquatic-mute.sh` |
-| Node.js command | `aquatic-<name>.js` | `aquatic-platform-mm-net-surcharges.js` |
-| Dev snippet | `aquatic-dev-<name>.js` | `aquatic-dev-mm-expand-module.js` |
+| Node.js command | `aquatic-<name>.js` | — |
+| Dev snippet | `aquatic-dev-<name>.js` | `aquatic-dev-mm-net-surcharges.js` |
 | Video output | `<base>_<suffix>.mov` | `input_mute.mov` |
 | Git tag | `<version>_r<sha7>` | `1.70.0_rabc1234` |
 

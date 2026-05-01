@@ -20,14 +20,12 @@ aquatic (Bash router) ─── $1 = COMMAND, shift
 ├── case: slideshow|compress|mute|trim|xlr8|tag|commit-history
 │       → "$DIR/aquatic-<command>.sh" "$@"
 │
-├── case: net-surcharges
-│       → node "$DIR/aquatic-platform-mm-net-surcharges.js" "$@"
-│
 ├── case: dev
 │       → require `AQUATIC_DEV=1`
 │       → $1 = dev snippet name
 │       → locate file: aquatic-dev-<name>.js
-│       → sanitize_sed escapes injected values
+│       → if mm-net-surcharges: run via `node` with remaining args
+│       → else: sanitize_sed escapes injected values
 │       → if/elif chain injects ___PLACEHOLDER___ values from $2, $3...
 │       → pipe result to pbcopy
 │       → echo "[OK] Snippet copied to clipboard!"
@@ -75,7 +73,7 @@ CREATE: aquatic-<name>.sh in repo root
 
 WIRE: Same as above (case entry + help line in aquatic)
 
-MODEL: aquatic-platform-mm-tag.sh
+MODEL: aquatic-git-tag.sh
 
 VERIFY: aquatic <name> <owner> <repo> <args>
 ```
@@ -97,7 +95,7 @@ WIRE:
    ;;
 2. aquatic — add help line
 
-MODEL: aquatic-platform-mm-net-surcharges.js
+MODEL: aquatic-dev-mm-net-surcharges.js
 
 VERIFY: aquatic <name> <test-args>
 ```
@@ -161,18 +159,14 @@ VERIFY: AQUATIC_DEV=1 aquatic dev <name> [args] → pbpaste to inspect output
 ### Git Commands
 | Command | Script | What it does |
 |---|---|---|
-| tag | `aquatic-platform-mm-tag.sh` | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
+| tag | `aquatic-git-tag.sh` | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
 | commit-history | `aquatic-commit-history.sh` | Visualize recent commits per tag (zsh, GraphQL) |
 
-### Data Commands
+### Dev Commands
 | Command | Script | What it does |
 |---|---|---|
-| net-surcharges | `aquatic-platform-mm-net-surcharges.js` | Parse CSVs, tally surcharges, `console.table` output |
-
-### Dev Snippets
-| Command | File Pattern | What it does |
-|---|---|---|
-| dev | `aquatic-dev-<name>.js` | Copy a dev-only browser JS snippet to the clipboard, optionally injecting sanitized placeholder values |
+| dev mm-net-surcharges | `aquatic-dev-mm-net-surcharges.js` | Parse CSVs, tally surcharges, `console.table` output |
+| dev <name> | `aquatic-dev-<name>.js` | Copy a dev-only browser JS snippet to the clipboard, optionally injecting sanitized placeholder values |
 
 ### Dev Snippet System
 
@@ -208,9 +202,9 @@ There is no config file system. All configuration is via:
 | Write a simple Bash video command | `aquatic-mute.sh` |
 | Write a multi-stage Bash video command | `aquatic-xlr8.sh` |
 | Write the most complex Bash command | `aquatic-slideshow.sh` |
-| Write a Git/GitHub command | `aquatic-platform-mm-tag.sh` |
+| Write a Git/GitHub command | `aquatic-git-tag.sh` |
 | Write a zsh command with GraphQL | `aquatic-commit-history.sh` |
-| Write a Node.js data command | `aquatic-platform-mm-net-surcharges.js` |
+| Write a Node.js data command | `aquatic-dev-mm-net-surcharges.js` |
 | Write the simplest dev snippet | `aquatic-dev-mm-expand-module.js` |
 | Write a complex async dev snippet | `aquatic-dev-mm-extract-csv.js` |
 | Understand the header format (Bash) | `.github/copilot-instructions.md` |

@@ -59,7 +59,7 @@ case "$COMMAND" in
         "$DIR/aquatic-compress.sh" "$@"
         ;;
     tag)
-        "$DIR/aquatic-platform-mm-tag.sh" "$@"
+        "$DIR/aquatic-git-tag.sh" "$@"
         ;;
     mute)
         "$DIR/aquatic-mute.sh" "$@"
@@ -73,9 +73,6 @@ case "$COMMAND" in
     commit-history)
         "$DIR/aquatic-commit-history.sh" "$@"
         ;;
-    net-surcharges)
-        node "$DIR/aquatic-platform-mm-net-surcharges.js" "$@"
-        ;;
     dev)
         if [ "${AQUATIC_DEV:-0}" != "1" ]; then
             echo "[ERROR] Dev-only command. Set AQUATIC_DEV=1 to enable."
@@ -87,7 +84,7 @@ case "$COMMAND" in
 
         if [ -z "$DEV_NAME" ] || [ ! -f "$DEV_FILE" ]; then
             echo "[ERROR] Dev snippet '$DEV_NAME' not found."
-            echo "Available: mm-extract-module, mm-expand-module, mm-extract-csv"
+            echo "Available: mm-extract-module, mm-expand-module, mm-extract-csv, mm-net-surcharges"
             exit 1
         fi
 
@@ -95,7 +92,11 @@ case "$COMMAND" in
             printf '%s' "$1" | sed -e 's/[~&/\]/\\&/g'
         }
 
-        if [ "$DEV_NAME" = "mm-expand-module" ]; then
+        if [ "$DEV_NAME" = "mm-net-surcharges" ]; then
+            shift
+            node "$DEV_FILE" "$@"
+
+        elif [ "$DEV_NAME" = "mm-expand-module" ]; then
             ICON=$(sanitize_sed "${2:-ui-expansion-icon}")
             sed "s~___EXPANSION_ICON___~$ICON~g" "$DEV_FILE" | pbcopy
             echo "[OK] Snippet '$DEV_NAME' copied to clipboard!"
@@ -150,7 +151,6 @@ case "$COMMAND" in
         echo "  xlr8          <file> --start <t> --end <t> [--speed <n>] [--fps <n>] - Speed up a section"
         echo "  tag            <owner> <repo> <version> [--branch <b>]        - Tag a commit using GitHub CLI"
         echo "  commit-history [--tags <n>] [--commits <n>] [--branch <b>]    - Visualize Git commit history by tag"
-        echo "  net-surcharges [dir]                                          - Parse CSVs and tally surcharge stats"
         echo "  dev            <name> [args...]                               - Copy dev-only JS snippet (AQUATIC_DEV=1)"
         echo ""
         echo "Global Options:"

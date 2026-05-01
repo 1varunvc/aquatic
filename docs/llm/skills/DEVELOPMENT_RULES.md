@@ -13,4 +13,6 @@
 11. Changelog entries must start with a **"What's New"** section written for end users (plain language, what they'll notice), followed by a **"Technical Details"** section for developers (implementation specifics, file changes, internal mechanisms).
 12. `RELEASES.md` entries are one-liners per version (`<version>|<user-facing summary>`). Write them as if telling a user what changed in one sentence. These are displayed on every CLI run when updates are available.
 13. Version metadata lives only in `VERSION` (single source of truth) and the router header. Individual sub-scripts must not contain `# Version` lines.
+14. At the end, appropriately update `README.md` with new user-facing commands, flags, and usage examples.
+15. At the end, appropriately update `docs/RELEASE_NOTES.md` for changes made in the release, following the required format.
 

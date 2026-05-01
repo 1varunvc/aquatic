@@ -9,7 +9,7 @@ It uses a router pattern: the `aquatic` Bash script receives a command and deleg
 
 - **`aquatic`** — Main entry point. Routes commands via a `case` statement.
 - **`aquatic-<command>.sh`** — Bash sub-scripts (e.g., `aquatic-trim.sh`, `aquatic-mute.sh`).
-- **`aquatic-<command>.js`** — Node.js sub-scripts run directly via `node` (e.g., `aquatic-platform-mm-net-surcharges.js`).
+- **`aquatic-<command>.js`** — Node.js sub-scripts run directly via `node` (e.g., `aquatic-dev-mm-net-surcharges.js`).
 - **`aquatic-dev-<name>.js`** — Dev-only browser-paste JS snippets.
     - Invoked through `aquatic dev <name> [args...]`
     - Requires `AQUATIC_DEV=1`

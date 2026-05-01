@@ -53,4 +53,4 @@ All notable changes to this project are documented in this file.
 
 ### Technical Details
 
-- Initial public commands: slideshow, compress, mute, trim, tag, commit-history, net-surcharges, snippet.
+- Initial public commands: slideshow, compress, mute, trim, tag, commit-history, dev (net-surcharges), snippet.

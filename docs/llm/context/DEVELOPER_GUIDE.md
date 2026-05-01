@@ -85,7 +85,7 @@ if (!fs.existsSync(arg)) {
 
 // --- MAIN LOGIC ---
 ```
-**MODEL:** `aquatic-platform-mm-net-surcharges.js`
+**MODEL:** `aquatic-dev-mm-net-surcharges.js`
 
 ### TEMPLATE: Dev Snippet
 ```javascript
@@ -133,7 +133,7 @@ if (!fs.existsSync(arg)) {
 | Thing | Convention | Example |
 |---|---|---|
 | Bash sub-script file | `aquatic-<command-name>.sh` | `aquatic-mute.sh` |
-| Node.js sub-script file | `aquatic-<command-name>.js` | `aquatic-platform-mm-net-surcharges.js` |
+| Node.js sub-script file | `aquatic-<command-name>.js` | `aquatic-dev-mm-net-surcharges.js` |
 | Dev snippet file | `aquatic-dev-<name>.js` | `aquatic-dev-mm-expand-module.js` |
 | Snippet placeholders | `___UPPER_SNAKE_CASE___` | `___EXPANSION_ICON___` |
 | Bash variables | `UPPER_SNAKE_CASE` | `TARGET_DIR`, `FPS`, `BASE_NAME` |
@@ -141,7 +141,7 @@ if (!fs.existsSync(arg)) {
 | Video output files | `<base>_<suffix>.mov` | `input_mute.mov`, `input_7fps.mov`, `input_trimmed.mov` |
 | xlr8 output files | `<base>_<speed>x_<fps>fps.mov` | `input_20x_30fps.mov` |
 | Git tag format | `<version>_r<sha7>` | `1.70.0_rabc1234` |
-| Router command name | lowercase, hyphenated | `commit-history`, `net-surcharges` |
+| Router command name | lowercase, hyphenated | `commit-history`, `dev mm-net-surcharges` |
 
 ## 4. Error Handling Rules
 
