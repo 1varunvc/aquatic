@@ -1,1 +1,1 @@
-0.1.0|Commands now use flags (--fps, --start, --end). Run any command with --help. Update notifications added.
+0.1.0|Introduced flag-based commands with --help support and update notifications

@@ -21,20 +21,7 @@ _aquatic_update_notify() {
     local RELEASES_FILE="$DIR/RELEASES.md"
     [ -f "$RELEASES_FILE" ] || return 0
 
-    local FOUND_NEWER="false"
-    while IFS='|' read -r ver summary; do
-        [ -z "$ver" ] && continue
-        if [ "$ver" != "$CURRENT_VERSION" ] && [ "$FOUND_NEWER" = "false" ]; then
-            continue
-        fi
-        if [ "$ver" = "$CURRENT_VERSION" ]; then
-            FOUND_NEWER="true"
-            continue
-        fi
-        # If we're past current version, these are newer
-    done < "$RELEASES_FILE"
-
-    # Read in reverse: show versions that come AFTER current in the file
+    # Show versions that appear AFTER current in the file (newer releases)
     local SHOW="false"
     local LINES=()
     while IFS='|' read -r ver summary; do

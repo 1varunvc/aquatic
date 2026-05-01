@@ -90,25 +90,6 @@ TAGS_DATA=$(
       }'
 )
 
-# Fetch base branch commits via GraphQL for consistent fields
-BASE_DATA=$(
-  gh api graphql \
-    -f owner="$OWNER" -f name="$REPO" -f qualifiedName="refs/heads/$BASE_BRANCH" \
-    -f query='
-      query($owner:String!, $name:String!, $qualifiedName:String!){
-        repository(owner:$owner, name:$name){
-          ref(qualifiedName:$qualifiedName){
-            target{
-              ... on Commit {
-                history(first:'"$COMMITS"'){
-                  nodes{ abbreviatedOid committedDate messageHeadline author { name user { login } } }
-                }
-              }
-            }
-          }
-        }
-      }'
-)
 
 # Latest tag tip; and whether base is ahead of latest tag
 LATEST_TAG_OID=$(jq -r '.data.repository.refs.nodes[0] | (.target.oid // .target.target.oid)' <<<"$TAGS_DATA")

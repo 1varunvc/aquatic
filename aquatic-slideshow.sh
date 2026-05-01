@@ -99,14 +99,22 @@ echo "-----------------------------------"
 
 if [ "$DEBUG_MODE" = "true" ]; then LOG_OUTPUT="/dev/stdout"; else LOG_OUTPUT="/dev/null"; fi
 
-TOTAL_IMGS=$(ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | wc -l | xargs)
+# Collect image files sorted by creation time
+IMAGE_FILES=()
+for f in *.jpg *.jpeg *.png *.JPG *.JPEG *.PNG; do
+    [ -f "$f" ] && IMAGE_FILES+=("$f")
+done
+IFS=$'\n' IMAGE_FILES=($(for f in "${IMAGE_FILES[@]}"; do
+    printf '%s\t%s\n' "$(stat -f '%B' "$f")" "$f"
+done | sort -n | cut -f2))
+unset IFS
+
+TOTAL_IMGS=${#IMAGE_FILES[@]}
 CURRENT_COUNT=1
 
 echo "[INFO] Total images to process: $TOTAL_IMGS"
 
-ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | while IFS= read -r img; do
-    
-    [ -f "$img" ] || continue
+for img in "${IMAGE_FILES[@]}"; do
 
     RAW_DATE=$(stat -f "%SB" -t "%B %d, %Y at %I:%M:%S %p (%Z)" "$img")
     ESCAPED_DATE=$(echo "$RAW_DATE" | sed -e 's/:/\\:/g' -e 's/,/\\,/g')
@@ -162,7 +170,8 @@ done
 
 echo "-----------------------------------"
 
-FIRST_IMG=$(ls -rtU | grep -iE '\.(jpg|jpeg|png)$' | head -n 1 | sed 's/\.[^.]*$//')
+FIRST_IMG="${IMAGE_FILES[0]:-}"
+FIRST_IMG="${FIRST_IMG%.*}"
 
 if [ -n "$CUSTOM_OUTPUT_NAME" ]; then
     OUTPUT_NAME="$CUSTOM_OUTPUT_NAME"
