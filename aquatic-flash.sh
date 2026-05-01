@@ -8,29 +8,51 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : April 24, 2026
-# Last Updated: April 24, 2026
-# Version     : 1.0
-# Usage       : aquatic flash <dir> <file> <start> <end> [speed] [fps]
+# Last Updated: May 1, 2026
+# Version     : 2.0
+# Usage       : aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]
 # Requirements: ffmpeg
 ###############################################################################
 
-TARGET_DIR="$1"
-FILENAME="${2:-}"
-START_TIME="${3:-}"
-END_TIME="${4:-}"
-SPEED="${5:-20.0}"
-FPS="${6:-30}"
+SPEED="20.0"
+FPS="30"
+START_TIME=""
+END_TIME=""
+POSITIONAL=()
 
-if [ -z "$END_TIME" ]; then
-    echo "Usage: aquatic flash <dir> <file> <start_time> <end_time> [speed] [fps]"
-    echo "Example: aquatic flash /path/to/dir video.mov 00:00:22 00:01:14 20.0 30"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --start) START_TIME="$2"; shift 2 ;;
+        --end) END_TIME="$2"; shift 2 ;;
+        --speed) SPEED="$2"; shift 2 ;;
+        --fps) FPS="$2"; shift 2 ;;
+        --help|-h)
+            echo "Usage: aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
+            echo ""
+            echo "Arguments:"
+            echo "  <file>           Video file to process"
+            echo ""
+            echo "Options:"
+            echo "  --start <time>   Speedup start time (e.g., 00:00:22)"
+            echo "  --end <time>     Speedup end time (e.g., 00:01:14)"
+            echo "  --speed <n>      Speedup multiplier (default: 20.0)"
+            echo "  --fps <n>        Output frame rate (default: 30)"
+            exit 0
+            ;;
+        -*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
+        *) POSITIONAL+=("$1"); shift ;;
+    esac
+done
+
+FILENAME="${POSITIONAL[0]:-}"
+
+if [ -z "$FILENAME" ] || [ -z "$START_TIME" ] || [ -z "$END_TIME" ]; then
+    echo "Usage: aquatic flash <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
     exit 1
 fi
 
-cd "$TARGET_DIR" || { echo "[ERROR] Directory '$TARGET_DIR' not found."; exit 1; }
-
 if [ ! -f "$FILENAME" ]; then
-    echo "[ERROR] File '$FILENAME' not found in '$TARGET_DIR'."
+    echo "[ERROR] File '$FILENAME' not found."
     exit 1
 fi
 
@@ -83,5 +105,4 @@ echo "[INFO] Running ffmpeg..."
 ffmpeg -i "$FILENAME" -filter_complex "$FILTER" -map "[outv]" -r "$FPS" "$OUTPUT"
 
 echo "-----------------------------------"
-echo "[OK] Done. Saved as $OUTPUT"
-
+echo "[OK] Saved as $OUTPUT"

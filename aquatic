@@ -7,18 +7,61 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: April 24, 2026
-# Version     : 2.3
+# Last Updated: May 1, 2026
+# Version     : 2.4.0
 # Usage       : aquatic <command> [arguments]
 # Requirements: macOS (for pbcopy), node, ffmpeg, gh, jq
 ###############################################################################
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CURRENT_VERSION=$(cat "$DIR/VERSION")
+
+# --- UPDATE CHECK (non-blocking, periodic) ---
+_aquatic_update_notify() {
+    local STATE_DIR="$HOME/.aquatic"
+    local LATEST_FILE="$STATE_DIR/latest_version"
+    local CHECK_FILE="$STATE_DIR/last_update_check"
+
+    mkdir -p "$STATE_DIR"
+
+    # Show notification from previous check
+    if [ -f "$LATEST_FILE" ]; then
+        local LATEST
+        LATEST=$(cat "$LATEST_FILE")
+        if [ "$LATEST" != "$CURRENT_VERSION" ] && [ -n "$LATEST" ]; then
+            echo "[INFO] Update available: $CURRENT_VERSION -> $LATEST (run 'brew upgrade aquatic')"
+        fi
+    fi
+
+    # Background check if stale (older than 24h)
+    if [ "${AQUATIC_NO_UPDATE_CHECK:-0}" != "1" ]; then
+        local NOW
+        NOW=$(date +%s)
+        local LAST=0
+        [ -f "$CHECK_FILE" ] && LAST=$(cat "$CHECK_FILE")
+        if [ $((NOW - LAST)) -gt 86400 ]; then
+            (
+                LATEST=$(curl -sf "https://api.github.com/repos/varun-chawla/aquatic-cli/releases/latest" 2>/dev/null | grep '"tag_name"' | head -1 | cut -d'"' -f4 | tr -d 'v') || true
+                date +%s > "$CHECK_FILE"
+                if [ -n "${LATEST:-}" ] && [ "$LATEST" != "$CURRENT_VERSION" ]; then
+                    echo "$LATEST" > "$LATEST_FILE"
+                else
+                    rm -f "$LATEST_FILE"
+                fi
+            ) &>/dev/null &
+        fi
+    fi
+}
+
+_aquatic_update_notify
+
 COMMAND="${1:-}"
 shift || true
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 case "$COMMAND" in
+    --version|-v)
+        echo "aquatic $CURRENT_VERSION"
+        ;;
     slideshow)
         "$DIR/aquatic-slideshow.sh" "$@"
         ;;
@@ -106,19 +149,26 @@ case "$COMMAND" in
     *)
         echo "=========================================================="
         echo "                   AQUATIC CLI TOOLKIT                    "
+        echo "              v$CURRENT_VERSION"
         echo "=========================================================="
-        echo "Usage: aquatic <command> [args]"
+        echo "Usage: aquatic <command> [options]"
         echo ""
         echo "Commands:"
-        echo "  slideshow      [dir] [no-ts] [output_name]              - Build 1-FPS screenshot slideshow"
-        echo "  compress       <dir> <file> [fps]                       - Convert video to specific FPS (default 30)"
-        echo "  mute           <dir> <file> [fps]                       - Strip audio from video (default 30fps)"
-        echo "  trim           <dir> <file> <start> <end> [fps]         - Compress (default 7fps) and cut middle section"
-        echo "  flash          <dir> <file> <start> <end> [speed] [fps] - Speed up a section of video (default 20x, 30fps)"
-        echo "  tag            <owner> <repo> <ver> [br]                - Tag a commit using GitHub CLI"
-        echo "  commit-history [tags] [commits] [br]                    - Visualize Git commit history by tag"
-        echo "  net-surcharges [dir]                                    - Parse CSVs and tally surcharge stats"
-        echo "  dev            <name> [args...]                         - Copy a dev-only JS snippet to clipboard (AQUATIC_DEV=1)"
+        echo "  slideshow      <file>... [--no-timestamps] [--output <name>]  - Build 1-FPS screenshot slideshow"
+        echo "  compress       <file> [--fps <n>]                             - Convert video to specific FPS (default 30)"
+        echo "  mute           <file> [--fps <n>]                             - Strip audio from video (default 30fps)"
+        echo "  trim           <file> --start <t> --end <t> [--fps <n>]       - Compress and cut middle section"
+        echo "  flash          <file> --start <t> --end <t> [--speed <n>] [--fps <n>] - Speed up a section"
+        echo "  tag            <owner> <repo> <version> [--branch <b>]        - Tag a commit using GitHub CLI"
+        echo "  commit-history [--tags <n>] [--commits <n>] [--branch <b>]    - Visualize Git commit history by tag"
+        echo "  net-surcharges [dir]                                          - Parse CSVs and tally surcharge stats"
+        echo "  dev            <name> [args...]                               - Copy dev-only JS snippet (AQUATIC_DEV=1)"
+        echo ""
+        echo "Global Options:"
+        echo "  --version, -v  Show version"
+        echo "  --help, -h     Show this help"
+        echo ""
+        echo "Set AQUATIC_NO_UPDATE_CHECK=1 to disable update notifications."
         echo "=========================================================="
         ;;
 esac
