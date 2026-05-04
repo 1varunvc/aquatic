@@ -10,8 +10,11 @@ set -euo pipefail
 # Created On  : April 24, 2026
 # Last Updated: May 4, 2026
 # Usage       : aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>] [--debug]
-# Requirements: ffmpeg
+# Requirements: ffmpeg, ffprobe, bc
 ###############################################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/aquatic-progress.sh"
 
 SPEED="20.0"
 FPS="30"
@@ -60,24 +63,6 @@ fi
 
 debug_log() {
     if [ "$DEBUG_MODE" = "true" ]; then echo "[DEBUG] $1"; fi
-}
-
-run_ffmpeg() {
-    local description="$1"; shift
-    local ffmpeg_err; ffmpeg_err=$(mktemp)
-    debug_log "ffmpeg: $description"
-    if [ "$DEBUG_MODE" = "true" ]; then
-        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else echo "[ERROR] ffmpeg failed: $description"; rm -f "$ffmpeg_err"; return 1; fi
-    else
-        if ffmpeg "$@" > /dev/null 2>"$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else
-            local err_summary; err_summary=$(grep -i "error\|no such\|invalid\|not found" "$ffmpeg_err" | head -3)
-            echo "[ERROR] ffmpeg failed: $description"
-            [ -n "$err_summary" ] && echo "[ERROR] Detail: $err_summary"
-            rm -f "$ffmpeg_err"; return 1
-        fi
-    fi
 }
 
 BASE_NAME="${FILENAME%.*}"
@@ -129,7 +114,7 @@ FILTER+="[v1][v2][v3]concat=n=3:v=1:a=0[outv]"
 debug_log "Filter graph: $FILTER"
 
 echo "[INFO] Running ffmpeg..."
-if run_ffmpeg "speed up ${SPEED}x (${START_TIME} to ${END_TIME})" \
+if _aquatic_run_ffmpeg_with_progress "Accelerating" "$FILENAME" \
     -i "$FILENAME" -filter_complex "$FILTER" -map "[outv]" -r "$FPS" "$OUTPUT"; then
     echo "-----------------------------------"
     echo "[OK] Saved as $OUTPUT"

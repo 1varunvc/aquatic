@@ -10,8 +10,11 @@ set -euo pipefail
 # Created On  : March 21, 2026
 # Last Updated: May 4, 2026
 # Usage       : aquatic trim <file> --start <time> --end <time> [--fps <n>] [--debug]
-# Requirements: ffmpeg
+# Requirements: ffmpeg, ffprobe, bc
 ###############################################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/aquatic-progress.sh"
 
 FPS="7"
 CUT_START=""
@@ -59,24 +62,6 @@ debug_log() {
     if [ "$DEBUG_MODE" = "true" ]; then echo "[DEBUG] $1"; fi
 }
 
-run_ffmpeg() {
-    local description="$1"; shift
-    local ffmpeg_err; ffmpeg_err=$(mktemp)
-    debug_log "ffmpeg: $description"
-    if [ "$DEBUG_MODE" = "true" ]; then
-        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else echo "[ERROR] ffmpeg failed: $description"; rm -f "$ffmpeg_err"; return 1; fi
-    else
-        if ffmpeg "$@" > /dev/null 2>"$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else
-            local err_summary; err_summary=$(grep -i "error\|no such\|invalid\|not found" "$ffmpeg_err" | head -3)
-            echo "[ERROR] ffmpeg failed: $description"
-            [ -n "$err_summary" ] && echo "[ERROR] Detail: $err_summary"
-            rm -f "$ffmpeg_err"; return 1
-        fi
-    fi
-}
-
 cleanup_trim() {
     rm -f "${BASE_NAME}_part1.mov" "${BASE_NAME}_part2.mov" concat_list.txt "$COMPRESSED" 2>/dev/null
 }
@@ -91,26 +76,26 @@ debug_log "Cut range: $CUT_START to $CUT_END"
 debug_log "Output: $OUTPUT"
 
 echo "[INFO] Step 1/4: Compressing to $FPS FPS..."
-if ! run_ffmpeg "compress to ${FPS}fps" -i "$FILENAME" -r "$FPS" "$COMPRESSED"; then
+if ! _aquatic_run_ffmpeg_with_progress "Step 1/4" "$FILENAME" -i "$FILENAME" -r "$FPS" "$COMPRESSED"; then
     echo "[ERROR] Compression step failed."
     exit 1
 fi
 
 echo "[INFO] Step 2/4: Cutting Part 1 (start to $CUT_START)..."
-if ! run_ffmpeg "cut part 1 (0 to $CUT_START)" -ss 0 -to "$CUT_START" -i "$COMPRESSED" -c copy "${BASE_NAME}_part1.mov"; then
+if ! _aquatic_run_ffmpeg_with_progress "Step 2/4" "$COMPRESSED" -ss 0 -to "$CUT_START" -i "$COMPRESSED" -c copy "${BASE_NAME}_part1.mov"; then
     echo "[ERROR] Part 1 cut failed."
     cleanup_trim; exit 1
 fi
 
 echo "[INFO] Step 3/4: Cutting Part 2 ($CUT_END onward)..."
-if ! run_ffmpeg "cut part 2 ($CUT_END to end)" -ss "$CUT_END" -i "$COMPRESSED" -c:v libx264 -preset fast -crf 23 -c:a copy "${BASE_NAME}_part2.mov"; then
+if ! _aquatic_run_ffmpeg_with_progress "Step 3/4" "$COMPRESSED" -ss "$CUT_END" -i "$COMPRESSED" -c:v libx264 -preset fast -crf 23 -c:a copy "${BASE_NAME}_part2.mov"; then
     echo "[ERROR] Part 2 cut failed."
     cleanup_trim; exit 1
 fi
 
 echo "[INFO] Step 4/4: Concatenating..."
 printf "file '%s_part1.mov'\nfile '%s_part2.mov'\n" "${BASE_NAME}" "${BASE_NAME}" > concat_list.txt
-if ! run_ffmpeg "concat parts" -f concat -safe 0 -i concat_list.txt -c copy "$OUTPUT"; then
+if ! _aquatic_run_ffmpeg_with_progress "Step 4/4" "${BASE_NAME}_part1.mov" -f concat -safe 0 -i concat_list.txt -c copy "$OUTPUT"; then
     echo "[ERROR] Concatenation failed."
     cleanup_trim; exit 1
 fi

@@ -53,6 +53,13 @@ Aquatic follows a **release-when-ready** model. No version is ever published unl
 
 ### Logging and Error Handling in Scripts
 
+<<<<<<< Updated upstream
 24. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
 25. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
 26. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
+=======
+25. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
+26. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
+27. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
+28. Internal shared libraries live in `scripts/lib/` and are sourced (not executed) by sub-scripts. They must not be invoked directly. File naming: `aquatic-<purpose>.sh`. They follow the same header convention but have no shebang usage line — the `# Usage` field documents how to source them.
+>>>>>>> Stashed changes

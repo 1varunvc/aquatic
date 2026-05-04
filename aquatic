@@ -8,7 +8,7 @@ set -euo pipefail
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
 # Last Updated: May 4, 2026
-# Version     : 0.1.0
+# Version     : 0.1.1
 # Usage       : aquatic <command> [arguments]
 # Requirements: macOS (for pbcopy), node, ffmpeg, gh, jq
 ###############################################################################
@@ -18,15 +18,20 @@ SCRIPT_DIR="$DIR/scripts"
 DEV_DIR="$DIR/scripts/dev"
 CURRENT_VERSION=$(cat "$DIR/VERSION")
 
-# --- UPDATE LOG (shows all versions newer than current from RELEASES.md) ---
-_aquatic_update_notify() {
-    local RELEASES_FILE="$DIR/RELEASES.md"
-    [ -f "$RELEASES_FILE" ] || return 0
+# --- UPDATE CHECK (fetches remote release data, shows what's new) ---
+AQUATIC_RELEASES_URL="https://raw.githubusercontent.com/1varunvc/aquatic/main/docs/releases.json"
 
-    # Show versions that appear AFTER current in the file (newer releases)
+_aquatic_update_notify() {
+    local remote_data
+    remote_data=$(curl -sf --max-time 2 "$AQUATIC_RELEASES_URL" 2>/dev/null) || return 0
+    [ -z "$remote_data" ] && return 0
+
     local SHOW="false"
     local LINES=()
-    while IFS='|' read -r ver summary; do
+    while IFS= read -r entry; do
+        local ver summary
+        ver=$(echo "$entry" | sed 's/|.*//')
+        summary=$(echo "$entry" | sed 's/[^|]*|//')
         [ -z "$ver" ] && continue
         if [ "$ver" = "$CURRENT_VERSION" ]; then
             SHOW="true"
@@ -35,13 +40,16 @@ _aquatic_update_notify() {
         if [ "$SHOW" = "true" ]; then
             LINES+=("  $ver — $summary")
         fi
-    done < "$RELEASES_FILE"
+    done <<< "$remote_data"
 
     if [ ${#LINES[@]} -gt 0 ]; then
+        echo "-----------------------------------"
         echo "[INFO] Updates available:"
         for line in "${LINES[@]}"; do
             echo "$line"
         done
+        echo "[INFO] Details: https://github.com/1varunvc/aquatic/releases"
+        echo "-----------------------------------"
     fi
 }
 

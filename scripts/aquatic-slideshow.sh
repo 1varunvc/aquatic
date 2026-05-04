@@ -13,6 +13,9 @@ set -euo pipefail
 # Requirements: ffmpeg (with drawtext/libfreetype), md5 (macOS)
 ###############################################################################
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/aquatic-progress.sh"
+
 # ==========================================
 # 1. USER CONFIGURATION
 # ==========================================
@@ -238,8 +241,9 @@ for img in "${IMAGE_FILES[@]}"; do
         -c:v libx264 -crf 0 -preset veryslow -pix_fmt yuv444p -r "$FPS" \
         "$OUTPUT_PART"; then
         echo "file '$OUTPUT_PART'" >> temp_list.txt
-        echo "[INFO] Processed [$CURRENT_COUNT/$TOTAL_IMGS]: $img"
+        _aquatic_draw_progress $((CURRENT_COUNT * 100 / TOTAL_IMGS)) "Encoding frames"
     else
+        echo ""
         echo "[WARN] Skipped [$CURRENT_COUNT/$TOTAL_IMGS]: $img"
         ((FAILED_COUNT++))
     fi
@@ -247,6 +251,7 @@ for img in "${IMAGE_FILES[@]}"; do
     ((CURRENT_COUNT++))
 done
 
+echo ""
 echo "-----------------------------------"
 
 if [ "$FAILED_COUNT" -gt 0 ]; then
