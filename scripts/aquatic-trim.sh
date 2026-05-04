@@ -8,14 +8,15 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: May 1, 2026
-# Usage       : aquatic trim <file> --start <time> --end <time> [--fps <n>]
+# Last Updated: May 4, 2026
+# Usage       : aquatic trim <file> --start <time> --end <time> [--fps <n>] [--debug]
 # Requirements: ffmpeg
 ###############################################################################
 
 FPS="7"
 CUT_START=""
 CUT_END=""
+DEBUG_MODE="false"
 POSITIONAL=()
 
 while [[ $# -gt 0 ]]; do
@@ -23,8 +24,9 @@ while [[ $# -gt 0 ]]; do
         --start) CUT_START="$2"; shift 2 ;;
         --end) CUT_END="$2"; shift 2 ;;
         --fps) FPS="$2"; shift 2 ;;
+        --debug) DEBUG_MODE="true"; shift ;;
         --help|-h)
-            echo "Usage: aquatic trim <file> --start <time> --end <time> [--fps <n>]"
+            echo "Usage: aquatic trim <file> --start <time> --end <time> [--fps <n>] [--debug]"
             echo ""
             echo "Arguments:"
             echo "  <file>           Video file to process"
@@ -33,6 +35,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --start <time>   Cut start time (e.g., 00:00:58)"
             echo "  --end <time>     Cut end time (e.g., 00:01:05)"
             echo "  --fps <n>        Output frame rate (default: 7)"
+            echo "  --debug          Show verbose debug output including ffmpeg logs"
             exit 0
             ;;
         -*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
@@ -52,23 +55,67 @@ if [ ! -f "$FILENAME" ]; then
     exit 1
 fi
 
+debug_log() {
+    if [ "$DEBUG_MODE" = "true" ]; then echo "[DEBUG] $1"; fi
+}
+
+run_ffmpeg() {
+    local description="$1"; shift
+    local ffmpeg_err; ffmpeg_err=$(mktemp)
+    debug_log "ffmpeg: $description"
+    if [ "$DEBUG_MODE" = "true" ]; then
+        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
+        else echo "[ERROR] ffmpeg failed: $description"; rm -f "$ffmpeg_err"; return 1; fi
+    else
+        if ffmpeg "$@" > /dev/null 2>"$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
+        else
+            local err_summary; err_summary=$(grep -i "error\|no such\|invalid\|not found" "$ffmpeg_err" | head -3)
+            echo "[ERROR] ffmpeg failed: $description"
+            [ -n "$err_summary" ] && echo "[ERROR] Detail: $err_summary"
+            rm -f "$ffmpeg_err"; return 1
+        fi
+    fi
+}
+
+cleanup_trim() {
+    rm -f "${BASE_NAME}_part1.mov" "${BASE_NAME}_part2.mov" concat_list.txt "$COMPRESSED" 2>/dev/null
+}
+
 BASE_NAME="${FILENAME%.*}"
 COMPRESSED="${BASE_NAME}_${FPS}fps.mov"
+OUTPUT="${BASE_NAME}_trimmed.mov"
 
-echo "[INFO] Step 1: Compressing to $FPS FPS..."
-ffmpeg -i "$FILENAME" -r "$FPS" "$COMPRESSED"
+echo "[INFO] Trimming '$FILENAME' (cut ${CUT_START} to ${CUT_END}) at $FPS FPS..."
+debug_log "Input: $FILENAME"
+debug_log "Cut range: $CUT_START to $CUT_END"
+debug_log "Output: $OUTPUT"
 
-echo "[INFO] Step 2: Cutting Part 1 (Start to $CUT_START)..."
-ffmpeg -ss 0 -to "$CUT_START" -i "$COMPRESSED" -c copy "${BASE_NAME}_part1.mov"
+echo "[INFO] Step 1/4: Compressing to $FPS FPS..."
+if ! run_ffmpeg "compress to ${FPS}fps" -i "$FILENAME" -r "$FPS" "$COMPRESSED"; then
+    echo "[ERROR] Compression step failed."
+    exit 1
+fi
 
-echo "[INFO] Step 3: Cutting Part 2 ($CUT_END onward)..."
-ffmpeg -ss "$CUT_END" -i "$COMPRESSED" -c:v libx264 -preset fast -crf 23 -c:a copy "${BASE_NAME}_part2.mov"
+echo "[INFO] Step 2/4: Cutting Part 1 (start to $CUT_START)..."
+if ! run_ffmpeg "cut part 1 (0 to $CUT_START)" -ss 0 -to "$CUT_START" -i "$COMPRESSED" -c copy "${BASE_NAME}_part1.mov"; then
+    echo "[ERROR] Part 1 cut failed."
+    cleanup_trim; exit 1
+fi
 
-echo "[INFO] Step 4: Concatenating..."
+echo "[INFO] Step 3/4: Cutting Part 2 ($CUT_END onward)..."
+if ! run_ffmpeg "cut part 2 ($CUT_END to end)" -ss "$CUT_END" -i "$COMPRESSED" -c:v libx264 -preset fast -crf 23 -c:a copy "${BASE_NAME}_part2.mov"; then
+    echo "[ERROR] Part 2 cut failed."
+    cleanup_trim; exit 1
+fi
+
+echo "[INFO] Step 4/4: Concatenating..."
 printf "file '%s_part1.mov'\nfile '%s_part2.mov'\n" "${BASE_NAME}" "${BASE_NAME}" > concat_list.txt
-ffmpeg -f concat -safe 0 -i concat_list.txt -c copy "${BASE_NAME}_trimmed.mov"
+if ! run_ffmpeg "concat parts" -f concat -safe 0 -i concat_list.txt -c copy "$OUTPUT"; then
+    echo "[ERROR] Concatenation failed."
+    cleanup_trim; exit 1
+fi
 
-echo "[INFO] Cleaning up..."
-rm "${BASE_NAME}_part1.mov" "${BASE_NAME}_part2.mov" concat_list.txt "$COMPRESSED"
+echo "[INFO] Cleaning up temporary files..."
+cleanup_trim
 
-echo "[OK] Saved as ${BASE_NAME}_trimmed.mov"
+echo "[OK] Saved as $OUTPUT"

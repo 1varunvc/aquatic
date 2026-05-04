@@ -8,8 +8,8 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : April 24, 2026
-# Last Updated: May 1, 2026
-# Usage       : aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>]
+# Last Updated: May 4, 2026
+# Usage       : aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>] [--debug]
 # Requirements: ffmpeg
 ###############################################################################
 
@@ -17,6 +17,7 @@ SPEED="20.0"
 FPS="30"
 START_TIME=""
 END_TIME=""
+DEBUG_MODE="false"
 POSITIONAL=()
 
 while [[ $# -gt 0 ]]; do
@@ -25,8 +26,9 @@ while [[ $# -gt 0 ]]; do
         --end) END_TIME="$2"; shift 2 ;;
         --speed) SPEED="$2"; shift 2 ;;
         --fps) FPS="$2"; shift 2 ;;
+        --debug) DEBUG_MODE="true"; shift ;;
         --help|-h)
-            echo "Usage: aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>]"
+            echo "Usage: aquatic xlr8 <file> --start <time> --end <time> [--speed <n>] [--fps <n>] [--debug]"
             echo ""
             echo "Arguments:"
             echo "  <file>           Video file to process"
@@ -36,6 +38,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --end <time>     Speedup end time (e.g., 00:01:14)"
             echo "  --speed <n>      Speedup multiplier (default: 20.0)"
             echo "  --fps <n>        Output frame rate (default: 30)"
+            echo "  --debug          Show verbose debug output including ffmpeg logs"
             exit 0
             ;;
         -*) echo "[ERROR] Unknown option: $1"; exit 1 ;;
@@ -54,6 +57,28 @@ if [ ! -f "$FILENAME" ]; then
     echo "[ERROR] File '$FILENAME' not found."
     exit 1
 fi
+
+debug_log() {
+    if [ "$DEBUG_MODE" = "true" ]; then echo "[DEBUG] $1"; fi
+}
+
+run_ffmpeg() {
+    local description="$1"; shift
+    local ffmpeg_err; ffmpeg_err=$(mktemp)
+    debug_log "ffmpeg: $description"
+    if [ "$DEBUG_MODE" = "true" ]; then
+        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
+        else echo "[ERROR] ffmpeg failed: $description"; rm -f "$ffmpeg_err"; return 1; fi
+    else
+        if ffmpeg "$@" > /dev/null 2>"$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
+        else
+            local err_summary; err_summary=$(grep -i "error\|no such\|invalid\|not found" "$ffmpeg_err" | head -3)
+            echo "[ERROR] ffmpeg failed: $description"
+            [ -n "$err_summary" ] && echo "[ERROR] Detail: $err_summary"
+            rm -f "$ffmpeg_err"; return 1
+        fi
+    fi
+}
 
 BASE_NAME="${FILENAME%.*}"
 OUTPUT="${BASE_NAME}_${SPEED}x_${FPS}fps.mov"
@@ -81,6 +106,7 @@ echo "[INFO] File: $FILENAME"
 echo "[INFO] Speedup range: ${START_TIME} (${S_SEC}s) to ${END_TIME} (${E_SEC}s)"
 echo "[INFO] Speed: ${SPEED}x | FPS: ${FPS}"
 echo "-----------------------------------"
+debug_log "Output: $OUTPUT"
 
 FILTER=""
 
@@ -100,8 +126,15 @@ FILTER+="x=(w-tw)/2:y=h-th-100:enable='between(t,0,5)'[v3];"
 
 FILTER+="[v1][v2][v3]concat=n=3:v=1:a=0[outv]"
 
-echo "[INFO] Running ffmpeg..."
-ffmpeg -i "$FILENAME" -filter_complex "$FILTER" -map "[outv]" -r "$FPS" "$OUTPUT"
+debug_log "Filter graph: $FILTER"
 
-echo "-----------------------------------"
-echo "[OK] Saved as $OUTPUT"
+echo "[INFO] Running ffmpeg..."
+if run_ffmpeg "speed up ${SPEED}x (${START_TIME} to ${END_TIME})" \
+    -i "$FILENAME" -filter_complex "$FILTER" -map "[outv]" -r "$FPS" "$OUTPUT"; then
+    echo "-----------------------------------"
+    echo "[OK] Saved as $OUTPUT"
+else
+    echo "-----------------------------------"
+    echo "[ERROR] Speed-up processing failed."
+    exit 1
+fi
