@@ -30,7 +30,9 @@
     - `feature/<name>` — new functionality
     - `maintenance/<name>` — refactors, docs, dependency updates
     - `bug/<name>` — fixes
+    - `release/<version>` — release preparation snapshots
 18. Commit and push to the branch. Do not create pull requests automatically — the repository owner handles PRs and merges manually.
+19. Never delete `release/*` branches. They serve as historical snapshots of each release and must be preserved indefinitely on both local and remote.
 
 ---
 
@@ -38,28 +40,29 @@
 
 Aquatic follows a **release-when-ready** model. No version is ever published unless it is fully verified. There are no "fix-up" patch releases for broken tags — broken tags are yanked and re-done.
 
-19. A tagged release must be fully tested and verified working before it is published. Never tag a broken state.
-20. Release workflow:
+20. Always `git pull origin main` (or the target branch) before starting any release, merge, or tag operation. Never operate on stale local state.
+21. A tagged release must be fully tested and verified working before it is published. Never tag a broken state.
+22. Release workflow:
     - Develop on a branch. Test locally and in CI.
     - When ready: the owner merges to `main`, tags `vX.Y.Z` on `main`, and creates the GitHub Release.
     - The `update-tap.yml` Action auto-updates the Homebrew formula.
-21. If a released version is found to be broken:
+23. If a released version is found to be broken:
     - **Not yet distributed** (no users have upgraded): delete the release and tag, fix on a branch, re-release with the same version.
     - **Already distributed**: fix on a `bug/` branch, bump patch (e.g., `0.1.0` -> `0.1.1`), release the fix.
-22. Never publish a release without running every command locally: `aquatic --version`, `aquatic mute`, `aquatic compress`, `aquatic trim`, `aquatic slideshow`, `aquatic tag`, `aquatic commit-history`, and `AQUATIC_DEV=1 aquatic dev mm-expand-module`.
-23. Version numbers only increment when a release is actually published. Do not bump `VERSION` on a branch — bump it only on `main` immediately before tagging.
+24. Never publish a release without running every command locally: `aquatic --version`, `aquatic mute`, `aquatic compress`, `aquatic trim`, `aquatic slideshow`, `aquatic tag`, `aquatic commit-history`, and `AQUATIC_DEV=1 aquatic dev mm-expand-module`.
+25. Version numbers only increment when a release is actually published. Do not bump `VERSION` on a branch — bump it only on `main` immediately before tagging.
 
 ---
 
 ### Logging and Error Handling in Scripts
 
-<<<<<<< Updated upstream
-24. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
-25. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
-26. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
-=======
-25. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
-26. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
-27. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
-28. Internal shared libraries live in `scripts/lib/` and are sourced (not executed) by sub-scripts. They must not be invoked directly. File naming: `aquatic-<purpose>.sh`. They follow the same header convention but have no shebang usage line — the `# Usage` field documents how to source them.
->>>>>>> Stashed changes
+26. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
+27. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
+28. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
+29. Internal shared libraries live in `scripts/lib/` and are sourced (not executed) by sub-scripts. They must not be invoked directly. File naming: `aquatic-<purpose>.sh`. They follow the same header convention but have no shebang usage line — the `# Usage` field documents how to source them.
+
+---
+
+### Automation and Tooling
+
+30. Never use commands that require interactive user input (editors, prompts, confirmations) in automated workflows or agent-driven operations. Always pass non-interactive flags (e.g., `-m` for commit messages, `--no-edit`, `--yes`, `--delete-branch`). If a command would open a pager or editor, pipe through `cat` or disable with flags like `--no-pager`.
