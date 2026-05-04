@@ -91,6 +91,12 @@ fi
 # 4. VIDEO PROCESSING
 # ==========================================
 
+if ! ffmpeg -filters 2>/dev/null | grep -q "drawtext"; then
+    echo "[ERROR] ffmpeg was built without the 'drawtext' filter (requires libfreetype)."
+    echo "[INFO] Fix: brew uninstall ffmpeg && brew install homebrew-ffmpeg/ffmpeg/ffmpeg"
+    exit 1
+fi
+
 rm -rf temp_parts temp_list.txt
 mkdir -p temp_parts
 
