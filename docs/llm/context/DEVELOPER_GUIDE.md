@@ -7,16 +7,16 @@
 
 | I need to create a... | Pattern | Location | Name Pattern |
 |---|---|---|---|
-| New Bash command | Flag-parse → validate → execute → log/save output | `script/aquatic-<name>.sh` | `aquatic-<command-name>.sh` |
-| New Node.js command | `#!/usr/bin/env node`, built-in modules, validate → process → output | `script/aquatic-<name>.js` | `aquatic-<command-name>.js` |
-| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `script/dev/aquatic-dev-<name>.js` + existing `dev)` branch in `aquatic` | `aquatic-dev-<name>.js` |
+| New Bash command | Flag-parse → validate → execute → log/save output | `scripts/aquatic-<name>.sh` | `aquatic-<command-name>.sh` |
+| New Node.js command | `#!/usr/bin/env node`, built-in modules, validate → process → output | `scripts/aquatic-<name>.js` | `aquatic-<command-name>.js` |
+| New dev snippet | JS with `___PLACEHOLDER___` tokens, no shebang | `scripts/dev/aquatic-dev-<name>.js` + existing `dev)` branch in `aquatic` | `aquatic-dev-<name>.js` |
 | New router entry | `case` block in `aquatic` | `aquatic` | Match the command name string |
 
 ## 1. Project Structure Rules
 
 - The router is `aquatic` (no extension) in the repo root.
-- Bash/Zsh sub-scripts live in `script/` with `.sh` extension.
-- Dev snippets and Node.js dev commands live in `script/dev/` with `.js` extension.
+- Bash/Zsh sub-scripts live in `scripts/` with `.sh` extension.
+- Dev snippets and Node.js dev commands live in `scripts/dev/` with `.js` extension.
 - Human-facing docs live in `docs/`. LLM reference docs live in `docs/llm/context/`. Prompt and agent workflow docs live in `docs/llm/prompt/` and `docs/llm/agent/`. AI instructions live in `.github/copilot-instructions.md`.
 - No `node_modules/`, no `package.json`. Node.js scripts use only built-in modules (`fs`, `path`).
 - `VERSION` file in root holds the current version string.
@@ -72,7 +72,7 @@ fi
 
 echo "[OK] Done."
 ```
-**MODEL:** `script/aquatic-mute.sh` or `script/aquatic-xlr8.sh`
+**MODEL:** `scripts/aquatic-mute.sh` or `scripts/aquatic-xlr8.sh`
 
 ### TEMPLATE: Node.js Command
 ```javascript
@@ -104,7 +104,7 @@ if (!fs.existsSync(arg)) {
 
 // --- MAIN LOGIC ---
 ```
-**MODEL:** `script/dev/aquatic-dev-mm-net-surcharges.js`
+**MODEL:** `scripts/dev/aquatic-dev-mm-net-surcharges.js`
 
 ### TEMPLATE: Dev Snippet
 ```javascript
@@ -120,19 +120,19 @@ if (!fs.existsSync(arg)) {
 
 // Use ___UPPER_SNAKE_CASE___ for injectable placeholders.
 ```
-**MODEL:** `script/dev/aquatic-dev-mm-expand-module.js`
+**MODEL:** `scripts/dev/aquatic-dev-mm-expand-module.js`
 
 ### TEMPLATE: Router Case Entry (Bash command)
 ```bash
     <command-name>)
-        "$DIR/aquatic-<command-name>.sh" "$@"
+        "$SCRIPT_DIR/aquatic-<command-name>.sh" "$@"
         ;;
 ```
 
 ### TEMPLATE: Router Case Entry (Node.js command)
 ```bash
     <command-name>)
-        node "$DIR/aquatic-<command-name>.js" "$@"
+        node "$SCRIPT_DIR/aquatic-<command-name>.js" "$@"
         ;;
 ```
 
@@ -227,11 +227,11 @@ sed "s~___PLACEHOLDER___~$PARAM~g" "$DEV_FILE" | pbcopy
 
 ## 7. Adding a New Command — Checklist
 
-1. **CREATE** the sub-script file in `script/` (Bash) or `script/dev/` (Node.js/dev snippets) following the appropriate template above.
+1. **CREATE** the sub-script file in `scripts/` (Bash) or `scripts/dev/` (Node.js/dev snippets) following the appropriate template above.
 2. **ADD** a `case` entry in `aquatic` for Bash/Node.js commands.
 3. **ADD** a usage line in the help text block in `aquatic`.
 4. **UPDATE** `README.md` if the command is user-facing.
-5. **CHMOD** the file: `chmod +x script/aquatic-<name>.sh` (Bash scripts only).
+5. **CHMOD** the file: `chmod +x scripts/aquatic-<name>.sh` (Bash scripts only).
 6. **FOR DEV SNIPPETS:**
    - Add the snippet name to the `Available:` list inside the existing `dev)` block.
    - Add an `elif` block only if placeholders need injection.

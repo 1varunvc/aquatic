@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ###############################################################################
-# Script Name : aquatic-platform-mm-tag.sh
+# Script Name : aquatic-git-tag.sh
 # Description : Creates a GitHub release tag appending a short SHA.
 #
 # Author      : Varun Chawla
