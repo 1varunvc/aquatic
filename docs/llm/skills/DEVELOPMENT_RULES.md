@@ -16,3 +16,40 @@
 14. At the end, appropriately update `README.md` with new user-facing commands, flags, and usage examples.
 15. At the end, appropriately update `docs/RELEASE_NOTES.md` for changes made in the release, following the required format.
 
+---
+
+### Git Identity
+
+16. All commits to `1varunvc/*` repositories must use `1varunvc@gmail.com` as the author email. Set repo-local config in every cloned repo: `git config user.email "1varunvc@gmail.com"`. Never rely on global config. Never commit with any other email address.
+
+---
+
+### Branching Policy
+
+17. Never push directly to `main`. All changes go through a branch:
+    - `feature/<name>` — new functionality
+    - `maintenance/<name>` — refactors, docs, dependency updates
+    - `bug/<name>` — fixes
+18. Merge to `main` via pull request (squash or merge commit). The PR title becomes the merge commit message.
+
+---
+
+### Release Strategy
+
+19. A tagged release must be fully tested and verified working before it is published. Never tag a broken state.
+20. Release workflow:
+    - Develop on a branch. Test locally and in CI.
+    - When ready: merge to `main`, tag `vX.Y.Z` on `main`, create GitHub Release.
+    - The `update-tap.yml` Action auto-updates the Homebrew formula.
+21. If a released version is found to be broken:
+    - **Not yet distributed** (no users have upgraded): delete the release and tag, fix on a branch, re-release with the same version.
+    - **Already distributed**: fix on a `bug/` branch, bump patch (e.g., `0.1.0` -> `0.1.1`), release the fix.
+22. Never publish a release without running every command locally: `aquatic --version`, `aquatic mute`, `aquatic compress`, `aquatic trim`, `aquatic slideshow`, `aquatic tag`, `aquatic commit-history`, and `AQUATIC_DEV=1 aquatic dev mm-expand-module`.
+
+---
+
+### Logging and Error Handling in Scripts
+
+23. External tool output (e.g., `ffmpeg`) must never be shown to the user by default. Capture stderr; on failure, log a concise `[ERROR]` message with the relevant stderr excerpt. Only show full external output when `DEBUG_MODE` is enabled.
+24. Every significant operation in a script must emit a `[DEBUG]` log (gated behind `DEBUG_MODE`) showing what is about to happen (input, parameters, output path). This makes failures instantly diagnosable.
+25. Use `while IFS= read -r` loops instead of `IFS=... VAR=($(cmd))` to split command output into arrays. This avoids word-splitting bugs and satisfies ShellCheck. Do not use `mapfile`/`readarray` — macOS ships bash 3.2 which does not support them.
