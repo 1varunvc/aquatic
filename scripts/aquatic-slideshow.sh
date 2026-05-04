@@ -267,6 +267,8 @@ else
     OUTPUT_NAME="${FIRST_IMG}_01fps"
 fi
 
+_aquatic_confirm_overwrite "${OUTPUT_NAME}.mov" || { rm -rf temp_parts temp_list.txt; exit 0; }
+
 if [ -f "temp_list.txt" ]; then
     echo "[INFO] Combining lossless video..."
     if ! run_ffmpeg "concat lossless parts" \

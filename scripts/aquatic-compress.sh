@@ -58,6 +58,8 @@ debug_log() {
 BASE_NAME="${FILENAME%.*}"
 OUTPUT="${BASE_NAME}_${FPS}fps.mov"
 
+_aquatic_confirm_overwrite "$OUTPUT" || exit 0
+
 echo "[INFO] Compressing '$FILENAME' to $FPS FPS..."
 debug_log "Input: $FILENAME"
 debug_log "Output: $OUTPUT"

@@ -12,6 +12,21 @@
 # Requirements: ffmpeg, ffprobe, bc
 ###############################################################################
 
+_aquatic_confirm_overwrite() {
+    local output_file="$1"
+    if [ -f "$output_file" ]; then
+        printf "[WARN] Output file already exists: %s\n" "$output_file"
+        printf "[WARN] Overwrite? (y/n): "
+        local answer
+        read -r answer
+        if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+            echo "[INFO] Aborted by user."
+            return 1
+        fi
+    fi
+    return 0
+}
+
 _aquatic_get_duration_us() {
     local file="$1"
     local duration_s
@@ -46,7 +61,7 @@ _aquatic_run_ffmpeg_with_progress() {
 
     if [ "${DEBUG_MODE:-false}" = "true" ]; then
         debug_log "ffmpeg: $description"
-        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then
+        if ffmpeg -y "$@" 2>&1 | tee "$ffmpeg_err"; then
             rm -f "$ffmpeg_err" "$progress_file"; return 0
         else
             echo "[ERROR] ffmpeg failed: $description"
@@ -57,7 +72,7 @@ _aquatic_run_ffmpeg_with_progress() {
     local total_duration_us
     total_duration_us=$(_aquatic_get_duration_us "$input_file")
 
-    ffmpeg "$@" -progress "$progress_file" -nostats > /dev/null 2>"$ffmpeg_err" &
+    ffmpeg -y "$@" -progress "$progress_file" -nostats > /dev/null 2>"$ffmpeg_err" &
     local ffmpeg_pid=$!
 
     if [ "$total_duration_us" -gt 0 ]; then
