@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file.
 - Update notifications are fetched remotely so you see what's new even before upgrading.
 - Download count badge displayed on the project README.
 - Graceful handling when no internet is available (update check silently skips).
+- Fixed: videos no longer hang when output file already exists (auto-overwrite).
 
 ### Technical Details
 
@@ -21,7 +22,8 @@ All notable changes to this project are documented in this file.
 - Removed `docs/index.html`; changelog is served via `docs/releases.json` and GitHub Releases page.
 - Homebrew formula updated: installs `scripts/lib/` to `libexec/lib/`, removes stale `RELEASES_FILE` inreplace.
 - Added Shields.io GitHub release download badge to README (auto-updating).
-- Added development rule for `scripts/lib/` internal shared modules.
+- Added development rules for `scripts/lib/` internal shared modules, release branch preservation, non-interactive automation, and release yank workflow.
+- ffmpeg calls use `-y` flag to prevent interactive overwrite prompts.
 
 ---
 

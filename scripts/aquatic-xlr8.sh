@@ -87,6 +87,8 @@ if [ "$S_SEC" -ge "$E_SEC" ]; then
     exit 1
 fi
 
+_aquatic_confirm_overwrite "$OUTPUT" || exit 0
+
 echo "[INFO] File: $FILENAME"
 echo "[INFO] Speedup range: ${START_TIME} (${S_SEC}s) to ${END_TIME} (${E_SEC}s)"
 echo "[INFO] Speed: ${SPEED}x | FPS: ${FPS}"

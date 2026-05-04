@@ -70,6 +70,8 @@ BASE_NAME="${FILENAME%.*}"
 COMPRESSED="${BASE_NAME}_${FPS}fps.mov"
 OUTPUT="${BASE_NAME}_trimmed.mov"
 
+_aquatic_confirm_overwrite "$OUTPUT" || exit 0
+
 echo "[INFO] Trimming '$FILENAME' (cut ${CUT_START} to ${CUT_END}) at $FPS FPS..."
 debug_log "Input: $FILENAME"
 debug_log "Cut range: $CUT_START to $CUT_END"

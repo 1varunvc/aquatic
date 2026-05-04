@@ -66,3 +66,4 @@ Aquatic follows a **release-when-ready** model. No version is ever published unl
 ### Automation and Tooling
 
 30. Never use commands that require interactive user input (editors, prompts, confirmations) in automated workflows or agent-driven operations. Always pass non-interactive flags (e.g., `-m` for commit messages, `--no-edit`, `--yes`, `--delete-branch`). If a command would open a pager or editor, pipe through `cat` or disable with flags like `--no-pager`.
+31. When a release needs to be yanked and re-done (per rule 23), the agent must first confirm with the user whether to (a) yank the latest tag and override it, or (b) create a new patch version. After confirmation, the agent handles the full workflow autonomously: delete release + tag, create bug branch, fix, commit, push, create PR, merge PR, delete branch, re-tag, and re-release. No further user input required after the initial decision.
