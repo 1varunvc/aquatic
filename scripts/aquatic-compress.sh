@@ -9,8 +9,11 @@ set -euo pipefail
 # Created On  : March 21, 2026
 # Last Updated: May 4, 2026
 # Usage       : aquatic compress <file> [--fps <n>] [--debug]
-# Requirements: ffmpeg
+# Requirements: ffmpeg, ffprobe, bc
 ###############################################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/aquatic-progress.sh"
 
 FPS="30"
 DEBUG_MODE="false"
@@ -52,24 +55,6 @@ debug_log() {
     if [ "$DEBUG_MODE" = "true" ]; then echo "[DEBUG] $1"; fi
 }
 
-run_ffmpeg() {
-    local description="$1"; shift
-    local ffmpeg_err; ffmpeg_err=$(mktemp)
-    debug_log "ffmpeg: $description"
-    if [ "$DEBUG_MODE" = "true" ]; then
-        if ffmpeg "$@" 2>&1 | tee "$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else echo "[ERROR] ffmpeg failed: $description"; rm -f "$ffmpeg_err"; return 1; fi
-    else
-        if ffmpeg "$@" > /dev/null 2>"$ffmpeg_err"; then rm -f "$ffmpeg_err"; return 0
-        else
-            local err_summary; err_summary=$(grep -i "error\|no such\|invalid\|not found" "$ffmpeg_err" | head -3)
-            echo "[ERROR] ffmpeg failed: $description"
-            [ -n "$err_summary" ] && echo "[ERROR] Detail: $err_summary"
-            rm -f "$ffmpeg_err"; return 1
-        fi
-    fi
-}
-
 BASE_NAME="${FILENAME%.*}"
 OUTPUT="${BASE_NAME}_${FPS}fps.mov"
 
@@ -77,7 +62,7 @@ echo "[INFO] Compressing '$FILENAME' to $FPS FPS..."
 debug_log "Input: $FILENAME"
 debug_log "Output: $OUTPUT"
 
-if run_ffmpeg "compress to ${FPS}fps" -i "$FILENAME" -r "$FPS" "$OUTPUT"; then
+if _aquatic_run_ffmpeg_with_progress "Compressing" "$FILENAME" -i "$FILENAME" -r "$FPS" "$OUTPUT"; then
     echo "[OK] Saved as $OUTPUT"
 else
     echo "[ERROR] Compression failed."

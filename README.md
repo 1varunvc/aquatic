@@ -1,5 +1,7 @@
 # aquatic
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/1varunvc/aquatic/total?label=downloads)
+
 A modular, extensible macOS CLI toolkit for automating everyday tasks.
 
 Aquatic uses a simple router pattern: one entry point delegates to self-contained sub-scripts. It ships with commands for video processing, Git tagging, and commit visualization — but the real idea is that anyone can drop in a new script for whatever repetitive task they need to automate.
@@ -38,7 +40,7 @@ Every command supports `--help` for inline documentation.
 | Command | Description |
 |---------|-------------|
 | `aquatic mute <file> [--fps <n>]` | Strip audio from a video |
-| `aquatic compress <file> [--fps <n>]` | Re-encode a video at a target frame rate |
+| `aquatic compress <file> [--fps <n>]` | Re-encode a video at a target frame rate (with progress bar) |
 | `aquatic trim <file> --start <t> --end <t> [--fps <n>]` | Cut out a section and concat the rest |
 | `aquatic xlr8 <file> --start <t> --end <t> [--speed <n>] [--fps <n>]` | Speed up a section with overlay text |
 | `aquatic slideshow [dir] [--no-timestamps] [--output <name>]` | Build a 1-FPS screenshot slideshow |
@@ -63,12 +65,17 @@ Every command supports `--help` for inline documentation.
 ```
 aquatic           — CLI router (entry point)
 scripts/          — Sub-scripts (Bash and Node.js)
+  lib/            — Internal shared libraries (sourced, not executed)
   dev/            — Dev-only browser-paste snippets
 docs/             — Documentation
 VERSION           — Current version
 RELEASES.md       — One-line-per-version changelog
 LICENSE           — GNU General Public License v3.0
 ```
+
+## What's New
+
+See the latest release notes on [GitHub Releases](https://github.com/1varunvc/aquatic/releases).
 
 ## License
 

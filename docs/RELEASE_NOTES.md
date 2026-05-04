@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [0.1.1] - 2026-05-04
+
+### What's New
+
+- All video commands (compress, mute, trim, xlr8, slideshow) now show a live progress bar during processing.
+- Update notifications are fetched remotely so you see what's new even before upgrading.
+- Download count badge displayed on the project README.
+- Graceful handling when no internet is available (update check silently skips).
+
+### Technical Details
+
+- Added `scripts/lib/aquatic-progress.sh` as a shared internal library (sourced by video scripts).
+- Introduced `scripts/lib/` directory for internal-use-only shared modules.
+- Router update check now fetches `docs/releases.json` from GitHub raw content (2s timeout, silent fail on network error).
+- Removed `docs/index.html`; changelog is served via `docs/releases.json` and GitHub Releases page.
+- Homebrew formula updated: installs `scripts/lib/` to `libexec/lib/`, removes stale `RELEASES_FILE` inreplace.
+- Added Shields.io GitHub release download badge to README (auto-updating).
+- Added development rule for `scripts/lib/` internal shared modules.
+
+---
+
 ## [0.1.0] - 2026-05-01
 
 ### What's New
@@ -25,7 +46,7 @@ All notable changes to this project are documented in this file.
 
 ---
 
-## [Pre-release] - 2026-04-24
+## [0.0.2-pre] - 2026-04-24
 
 ### What's New
 
