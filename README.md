@@ -61,14 +61,31 @@ Every command supports `--help` for inline documentation.
 ## Project Structure
 
 ```
-aquatic          — CLI router (entry point)
-script/          — Sub-scripts (Bash and Node.js)
-  dev/           — Dev-only browser-paste snippets
-docs/            — Documentation
-VERSION          — Current version
-RELEASES.md      — One-line-per-version changelog
+aquatic           — CLI router (entry point)
+scripts/          — Sub-scripts (Bash and Node.js)
+  dev/            — Dev-only browser-paste snippets
+docs/             — Documentation
+VERSION           — Current version
+RELEASES.md       — One-line-per-version changelog
+LICENSE           — GNU General Public License v3.0
 ```
 
 ## License
 
-Private — all rights reserved.
+This project is licensed under the [GNU General Public License v3.0](./LICENSE).
+
+aquatic — A modular, extensible macOS CLI toolkit for automating everyday tasks.
+Copyright (C) 2026  Varun Chawla
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
