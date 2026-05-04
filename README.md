@@ -17,8 +17,8 @@ Aquatic uses a simple router pattern: one entry point delegates to self-containe
 
 ```bash
 # Clone the repo
-git clone https://github.com/varun-chawla/aquatic-cli.git
-cd aquatic-cli
+git clone https://github.com/varun-chawla/aquatic.git
+cd aquatic
 
 # Make the router executable and add it to your PATH
 chmod +x aquatic
