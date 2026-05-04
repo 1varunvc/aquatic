@@ -52,17 +52,17 @@ Every command supports `--help` for inline documentation.
 
 ## Adding a New Command
 
-1. Create `script/aquatic-<command>.sh` (or `.js` for Node scripts) inside the `script/` directory.
+1. Create `scripts/aquatic-<command>.sh` (or `.js` for Node scripts) inside the `scripts/` directory.
 2. Add a matching `case` entry in the `aquatic` router, pointing to the new script path.
 3. Follow the standard file header and error-handling conventions (see `docs/CONTRIBUTING.md`).
 
-> All sub-scripts live under the `script/` directory. The `aquatic` router in the project root dispatches to them.
+> All sub-scripts live under the `scripts/` directory. The `aquatic` router in the project root dispatches to them.
 
 ## Project Structure
 
 ```
 aquatic          — CLI router (entry point)
-script/          — Sub-scripts (Bash and Node.js)
+scripts/          — Sub-scripts (Bash and Node.js)
   dev/           — Dev-only browser-paste snippets
 docs/            — Documentation
 VERSION          — Current version

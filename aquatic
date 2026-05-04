@@ -7,13 +7,15 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: May 1, 2026
+# Last Updated: May 4, 2026
 # Version     : 0.1.0
 # Usage       : aquatic <command> [arguments]
 # Requirements: macOS (for pbcopy), node, ffmpeg, gh, jq
 ###############################################################################
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$DIR/scripts"
+DEV_DIR="$DIR/scripts/dev"
 CURRENT_VERSION=$(cat "$DIR/VERSION")
 
 # --- UPDATE LOG (shows all versions newer than current from RELEASES.md) ---
@@ -53,25 +55,25 @@ case "$COMMAND" in
         echo "aquatic $CURRENT_VERSION"
         ;;
     slideshow)
-        "$DIR/aquatic-slideshow.sh" "$@"
+        "$SCRIPT_DIR/aquatic-slideshow.sh" "$@"
         ;;
     compress)
-        "$DIR/aquatic-compress.sh" "$@"
+        "$SCRIPT_DIR/aquatic-compress.sh" "$@"
         ;;
     tag)
-        "$DIR/aquatic-git-tag.sh" "$@"
+        "$SCRIPT_DIR/aquatic-git-tag.sh" "$@"
         ;;
     mute)
-        "$DIR/aquatic-mute.sh" "$@"
+        "$SCRIPT_DIR/aquatic-mute.sh" "$@"
         ;;
     trim)
-        "$DIR/aquatic-trim.sh" "$@"
+        "$SCRIPT_DIR/aquatic-trim.sh" "$@"
         ;;
     xlr8)
-        "$DIR/aquatic-xlr8.sh" "$@"
+        "$SCRIPT_DIR/aquatic-xlr8.sh" "$@"
         ;;
     commit-history)
-        "$DIR/aquatic-commit-history.sh" "$@"
+        "$SCRIPT_DIR/aquatic-commit-history.sh" "$@"
         ;;
     dev)
         if [ "${AQUATIC_DEV:-0}" != "1" ]; then
@@ -80,7 +82,7 @@ case "$COMMAND" in
         fi
 
         DEV_NAME="${1:-}"
-        DEV_FILE="$DIR/aquatic-dev-$DEV_NAME.js"
+        DEV_FILE="$DEV_DIR/aquatic-dev-$DEV_NAME.js"
 
         if [ -z "$DEV_NAME" ] || [ ! -f "$DEV_FILE" ]; then
             echo "[ERROR] Dev snippet '$DEV_NAME' not found."

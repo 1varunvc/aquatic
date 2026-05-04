@@ -7,7 +7,7 @@
 
 ## System Overview
 
-Aquatic is a macOS CLI toolkit providing commands for video processing (`ffmpeg`), Git tagging (`gh` + `jq`), CSV data parsing (Node.js), and dev-only browser snippets copied to the clipboard. The `aquatic` Bash router in the repo root dispatches to sub-scripts in `script/` and `script/dev/`. Documentation lives under `docs/` and `.github/`. The toolkit includes version management via `VERSION` file and an update notification system reading from `RELEASES.md`.
+Aquatic is a macOS CLI toolkit providing commands for video processing (`ffmpeg`), Git tagging (`gh` + `jq`), CSV data parsing (Node.js), and dev-only browser snippets copied to the clipboard. The `aquatic` Bash router in the repo root dispatches to sub-scripts in `scripts/` and `scripts/dev/`. Documentation lives under `docs/` and `.github/`. The toolkit includes version management via `VERSION` file and an update notification system reading from `RELEASES.md`.
 
 ## How It Works — Execution Flow
 
@@ -22,7 +22,7 @@ aquatic (Bash router) ─── reads VERSION, runs _aquatic_update_notify()
 ├── $1 = COMMAND, shift
 │
 ├── case: slideshow|compress|mute|trim|xlr8|tag|commit-history
-│       → "$DIR/aquatic-<command>.sh" "$@"
+│       → "$SCRIPT_DIR/aquatic-<command>.sh" "$@"
 │
 ├── case: dev
 │       → require `AQUATIC_DEV=1`
@@ -49,7 +49,7 @@ aquatic (Bash router) ─── reads VERSION, runs _aquatic_update_notify()
 ### Recipe: New Bash Command (Video)
 
 ```
-CREATE: script/aquatic-<name>.sh
+CREATE: scripts/aquatic-<name>.sh
 - Use TEMPLATE from DEVELOPER_GUIDE.md S 2
 - Header block with Script Name, Description, Usage, Requirements: ffmpeg
 - Flag-based arg parsing: while/case loop with POSITIONAL array
@@ -61,19 +61,19 @@ CREATE: script/aquatic-<name>.sh
 WIRE:
 1. aquatic — add case entry before the `*)` block:
    <name>)
-   "$DIR/aquatic-<name>.sh" "$@"
+   "$SCRIPT_DIR/aquatic-<name>.sh" "$@"
    ;;
 2. aquatic — add usage line in help text
 
-MODEL: script/aquatic-mute.sh (simple) or script/aquatic-xlr8.sh (multi-stage)
+MODEL: scripts/aquatic-mute.sh (simple) or scripts/aquatic-xlr8.sh (multi-stage)
 
-VERIFY: chmod +x script/aquatic-<name>.sh && aquatic <name> <test-args>
+VERIFY: chmod +x scripts/aquatic-<name>.sh && aquatic <name> <test-args>
 ```
 
 ### Recipe: New Bash Command (Git/API)
 
 ```
-CREATE: script/aquatic-<name>.sh
+CREATE: scripts/aquatic-<name>.sh
 - Header with Requirements: gh, jq
 - Flag-based arg parsing with POSITIONAL array for owner, repo, etc.
 - --help|-h handler
@@ -81,7 +81,7 @@ CREATE: script/aquatic-<name>.sh
 
 WIRE: Same as above (case entry + help line in aquatic)
 
-MODEL: script/aquatic-git-tag.sh
+MODEL: scripts/aquatic-git-tag.sh
 
 VERIFY: aquatic <name> <owner> <repo> <args>
 ```
@@ -89,7 +89,7 @@ VERIFY: aquatic <name> <owner> <repo> <args>
 ### Recipe: New Node.js Command
 
 ```
-CREATE: script/dev/aquatic-<name>.js
+CREATE: scripts/dev/aquatic-<name>.js
 - Shebang: #!/usr/bin/env node
 - JS header block (/** ... */)
 - require('fs') and require('path') only — no npm deps
@@ -99,11 +99,11 @@ CREATE: script/dev/aquatic-<name>.js
 WIRE:
 1. aquatic — add case entry:
    <name>)
-   node "$DIR/aquatic-<name>.js" "$@"
+   node "$DEV_DIR/aquatic-<name>.js" "$@"
    ;;
 2. aquatic — add help line
 
-MODEL: script/dev/aquatic-dev-mm-net-surcharges.js
+MODEL: scripts/dev/aquatic-dev-mm-net-surcharges.js
 
 VERIFY: aquatic <name> <test-args>
 ```
@@ -111,7 +111,7 @@ VERIFY: aquatic <name> <test-args>
 ### Recipe: New Dev Snippet (No Placeholders)
 
 ```
-CREATE: script/dev/aquatic-dev-<name>.js
+CREATE: scripts/dev/aquatic-dev-<name>.js
 - // header block (no shebang)
 - Pure browser JS (document.querySelector, async clipboard helpers, etc.)
 
@@ -119,7 +119,7 @@ WIRE:
 1. aquatic — add snippet name to the "Available:" error message in the existing `dev)` block
 2. No elif needed — the `dev)` branch falls through to `cat "$DEV_FILE" | pbcopy`
 
-MODEL: script/dev/aquatic-dev-mm-expand-module.js
+MODEL: scripts/dev/aquatic-dev-mm-expand-module.js
 
 VERIFY: AQUATIC_DEV=1 aquatic dev <name> → check clipboard with pbpaste
 ```
@@ -127,7 +127,7 @@ VERIFY: AQUATIC_DEV=1 aquatic dev <name> → check clipboard with pbpaste
 ### Recipe: New Dev Snippet (With Placeholders)
 
 ```
-CREATE: script/dev/aquatic-dev-<name>.js
+CREATE: scripts/dev/aquatic-dev-<name>.js
 - Use ___UPPER_SNAKE_CASE___ for each injectable value
 - // header block
 
@@ -137,7 +137,7 @@ WIRE:
 3. Sanitize every injected value with `sanitize_sed` before passing it to `sed`
 4. Pipe the generated output to `pbcopy`
 
-MODEL: `aquatic:99-134` and `script/dev/aquatic-dev-mm-extract-csv.js`
+MODEL: `aquatic:99-134` and `scripts/dev/aquatic-dev-mm-extract-csv.js`
 
 VERIFY: AQUATIC_DEV=1 aquatic dev <name> [args] → pbpaste to inspect output
 ```
@@ -152,31 +152,31 @@ VERIFY: AQUATIC_DEV=1 aquatic dev <name> [args] → pbpaste to inspect output
 | Shell safety | `set -euo pipefail` at the top of the router |
 | Version | Reads `VERSION` file; supports `--version`/`-v` flag |
 | Update check | `_aquatic_update_notify()` reads `RELEASES.md` and shows versions newer than current |
-| Bash commands | Direct execution: `"$DIR/aquatic-<name>.sh" "$@"` |
-| Node.js commands | `node "$DIR/aquatic-<name>.js" "$@"` |
+| Bash commands | Direct execution: `"$SCRIPT_DIR/aquatic-<name>.sh" "$@"` |
+| Node.js commands | `node "$DEV_DIR/aquatic-<name>.js" "$@"` |
 | Dev snippets | `AQUATIC_DEV=1` gate + sanitized `sed` injection → `pbcopy` |
-| Script dir resolution | `DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` |
+| Script dir resolution | `DIR` → repo root; `SCRIPT_DIR="$DIR/scripts"`; `DEV_DIR="$DIR/scripts/dev"` |
 
 ### Video Commands
 | Command | Script | What it does | Output |
 |---|---|---|---|
-| compress | `script/aquatic-compress.sh` | Re-encode at target FPS | `<base>_<fps>fps.mov` |
-| mute | `script/aquatic-mute.sh` | Strip audio + set FPS | `<base>_mute.mov` |
-| trim | `script/aquatic-trim.sh` | Compress + cut middle section + concat | `<base>_trimmed.mov` |
-| xlr8 | `script/aquatic-xlr8.sh` | Speed up a middle section and overlay status text | `<base>_<speed>x_<fps>fps.mov` |
-| slideshow | `script/aquatic-slideshow.sh` | Stitch images into captioned video | `<firstimg\|output-name>_01fps.mov` |
+| compress | `scripts/aquatic-compress.sh` | Re-encode at target FPS | `<base>_<fps>fps.mov` |
+| mute | `scripts/aquatic-mute.sh` | Strip audio + set FPS | `<base>_mute.mov` |
+| trim | `scripts/aquatic-trim.sh` | Compress + cut middle section + concat | `<base>_trimmed.mov` |
+| xlr8 | `scripts/aquatic-xlr8.sh` | Speed up a middle section and overlay status text | `<base>_<speed>x_<fps>fps.mov` |
+| slideshow | `scripts/aquatic-slideshow.sh` | Stitch images into captioned video | `<firstimg\|output-name>_01fps.mov` |
 
 ### Git Commands
 | Command | Script | What it does |
 |---|---|---|
-| tag | `script/aquatic-git-tag.sh` | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
-| commit-history | `script/aquatic-commit-history.sh` | Visualize recent commits per tag (zsh, GraphQL) |
+| tag | `scripts/aquatic-git-tag.sh` | Create GitHub tag `<ver>_r<sha7>` via `gh api` |
+| commit-history | `scripts/aquatic-commit-history.sh` | Visualize recent commits per tag (zsh, GraphQL) |
 
 ### Dev Commands
 | Command | Script | What it does |
 |---|---|---|
-| dev mm-net-surcharges | `script/dev/aquatic-dev-mm-net-surcharges.js` | Parse CSVs, tally surcharges, `console.table` output |
-| dev <name> | `script/dev/aquatic-dev-<name>.js` | Copy a dev-only browser JS snippet to the clipboard, optionally injecting sanitized placeholder values |
+| dev mm-net-surcharges | `scripts/dev/aquatic-dev-mm-net-surcharges.js` | Parse CSVs, tally surcharges, `console.table` output |
+| dev <name> | `scripts/dev/aquatic-dev-<name>.js` | Copy a dev-only browser JS snippet to the clipboard, optionally injecting sanitized placeholder values |
 
 ### Dev Snippet System
 
@@ -201,7 +201,7 @@ There is no config file system. All configuration is via:
 | Environment variables | Router / dev snippets | `AQUATIC_DEV=1 aquatic dev mm-expand-module` |
 | Hardcoded defaults | Each script before parsing loop | `FPS="30"` in `aquatic-mute.sh` |
 | User configuration block | `aquatic-slideshow.sh` | `FONT_SIZE`, `WRAP_WIDTH`, `FPS`, `DEBUG_MODE` |
-| Captions data file | `captions.txt` (user-created) | `Filename | Caption text` format, see `script/captions.example.txt` |
+| Captions data file | `captions.txt` (user-created) | `Filename | Caption text` format, see `scripts/captions.example.txt` |
 | Version file | `VERSION` in repo root | Single-line version string |
 | Release log | `RELEASES.md` in repo root | `version|summary` lines for update notifications |
 
@@ -212,15 +212,15 @@ There is no config file system. All configuration is via:
 | Understand how commands are routed | `aquatic` |
 | See how dev snippets are gated and injected | `aquatic:76-138` |
 | See version and update notification logic | `aquatic:17-46` |
-| Write a simple Bash video command | `script/aquatic-mute.sh` |
-| Write a multi-stage Bash video command | `script/aquatic-xlr8.sh` |
-| Write the most complex Bash command | `script/aquatic-slideshow.sh` |
-| Write a Git/GitHub command | `script/aquatic-git-tag.sh` |
-| Write a zsh command with GraphQL | `script/aquatic-commit-history.sh` |
-| Write a Node.js data command | `script/dev/aquatic-dev-mm-net-surcharges.js` |
-| Write the simplest dev snippet | `script/dev/aquatic-dev-mm-expand-module.js` |
-| Write a complex async dev snippet | `script/dev/aquatic-dev-mm-extract-csv.js` |
+| Write a simple Bash video command | `scripts/aquatic-mute.sh` |
+| Write a multi-stage Bash video command | `scripts/aquatic-xlr8.sh` |
+| Write the most complex Bash command | `scripts/aquatic-slideshow.sh` |
+| Write a Git/GitHub command | `scripts/aquatic-git-tag.sh` |
+| Write a zsh command with GraphQL | `scripts/aquatic-commit-history.sh` |
+| Write a Node.js data command | `scripts/dev/aquatic-dev-mm-net-surcharges.js` |
+| Write the simplest dev snippet | `scripts/dev/aquatic-dev-mm-expand-module.js` |
+| Write a complex async dev snippet | `scripts/dev/aquatic-dev-mm-extract-csv.js` |
 | Understand the header format | `.github/copilot-instructions.md` |
 | See coding standards and rules | `.github/copilot-instructions.md` |
-| See captions data format | `script/captions.example.txt` |
+| See captions data format | `scripts/captions.example.txt` |
 ```

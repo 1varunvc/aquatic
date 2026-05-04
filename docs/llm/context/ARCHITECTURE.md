@@ -34,19 +34,23 @@
 ```
 aquatic/
 ├── aquatic                                        # Router (entry point)
-├── aquatic-slideshow.sh                           # Bash video command
-├── aquatic-compress.sh                            # Bash video command
-├── aquatic-mute.sh                                # Bash video command
-├── aquatic-trim.sh                                # Bash video command
-├── aquatic-xlr8.sh                               # Bash video command
-├── aquatic-git-tag.sh                     # Bash Git/GitHub command
-├── aquatic-commit-history.sh                      # Zsh Git/GitHub command
-├── aquatic-dev-mm-net-surcharges.js               # Dev Node.js data command
-├── aquatic-dev-mm-expand-module.js                # Dev snippet
-├── aquatic-dev-mm-extract-csv.js                  # Dev snippet
-├── aquatic-dev-mm-extract-module.js               # Dev snippet
-├── captions.example.txt                           # Sample captions data
+├── VERSION                                        # Single source of truth for version
+├── RELEASES.md                                    # One-liner release log
 ├── README.md                                      # User-facing overview and command table
+├── scripts/
+│   ├── aquatic-slideshow.sh                       # Bash video command
+│   ├── aquatic-compress.sh                        # Bash video command
+│   ├── aquatic-mute.sh                            # Bash video command
+│   ├── aquatic-trim.sh                            # Bash video command
+│   ├── aquatic-xlr8.sh                            # Bash video command
+│   ├── aquatic-git-tag.sh                         # Bash Git/GitHub command
+│   ├── aquatic-commit-history.sh                  # Zsh Git/GitHub command
+│   ├── captions.example.txt                       # Sample captions data
+│   └── dev/
+│       ├── aquatic-dev-mm-net-surcharges.js       # Dev Node.js data command
+│       ├── aquatic-dev-mm-expand-module.js        # Dev snippet
+│       ├── aquatic-dev-mm-extract-csv.js          # Dev snippet
+│       └── aquatic-dev-mm-extract-module.js       # Dev snippet
 ├── docs/
 │   ├── CHANGELOG.md                               # Release history
 │   ├── CONTRIBUTING.md                            # Human contribution guide
