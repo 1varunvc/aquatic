@@ -1,6 +1,6 @@
 # aquatic
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/1varunvc/aquatic/total?label=downloads)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/1varunvc/aquatic/total?label=downloads&cacheSeconds=300)
 
 A modular, extensible macOS CLI toolkit for automating everyday tasks.
 
