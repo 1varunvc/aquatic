@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## [Unreleased]
+
+### What's New
+
+- `aquatic tag` now checks if the tag already exists before attempting to create it, preventing duplicate tag errors.
+
+### Technical Details
+
+- Added pre-flight `gh api` call to `repos/:owner/:repo/git/ref/tags/:tag` in `aquatic-git-tag.sh`. Exits with `[ERROR]` if tag is found.
+
+---
+
 ## [0.1.1] - 2026-05-04
 
 ### What's New

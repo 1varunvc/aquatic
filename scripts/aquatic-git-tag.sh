@@ -7,7 +7,7 @@ set -euo pipefail
 #
 # Author      : Varun Chawla
 # Created On  : March 21, 2026
-# Last Updated: May 1, 2026
+# Last Updated: June 1, 2026
 # Usage       : aquatic tag <owner> <repo> <version> [--branch <b>]
 # Requirements: gh
 ###############################################################################
@@ -54,6 +54,12 @@ else
 fi
 
 TAG_NAME="${VERSION}_r${SHA:0:7}"
+
+echo "[DEBUG] Checking if tag $TAG_NAME already exists..." >&2
+if gh api "repos/$OWNER/$REPO/git/ref/tags/$TAG_NAME" --silent 2>/dev/null; then
+    echo "[ERROR] Tag $TAG_NAME already exists in $OWNER/$REPO."
+    exit 1
+fi
 
 echo "[INFO] Creating tag $TAG_NAME pointing to $SHA in $OWNER/$REPO..."
 gh api repos/$OWNER/$REPO/git/refs -f ref="refs/tags/$TAG_NAME" -f sha="$SHA"
