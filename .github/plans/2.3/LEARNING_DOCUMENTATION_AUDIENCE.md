@@ -2,7 +2,7 @@
 
 ## The Problem You Identified
 
-You asked CONTRIBUTING.md to be "actually useful to humans." The merged version (from DEVELOPER_GUIDE.md and project_rules.md) was dense, tabular, and reference-oriented — **good for LLMs, terrible for humans.**
+You asked CONTRIBUTING.md to be "actually useful to humans." The merged version (from developer-guide.instructions.md and project_rules.md) was dense, tabular, and reference-oriented — **good for LLMs, terrible for humans.**
 
 ## The Solution
 
@@ -15,7 +15,7 @@ You asked CONTRIBUTING.md to be "actually useful to humans." The merged version 
 - Friendly tone ("Thank you for contributing!")
 - Task-oriented ("I want to add a new command" → here's how)
 
-### For LLMs (docs/agent/)
+### For LLMs (.github/instructions/)
 - Dense reference tables
 - Templates and boilerplate
 - Naming conventions as tables, not prose
@@ -48,7 +48,7 @@ CONTRIBUTING.md (Humans)
 ├─ Testing Checklist (to-do items)
 └─ FAQ with Links (pointers to detailed docs)
 
-docs/agent/DEVELOPER_GUIDE.md (LLMs)
+.github/instructions/developer-guide.instructions.md (LLMs)
 ├─ Quick Reference Card (table)
 ├─ Templates (boilerplate)
 ├─ Naming Rules (table)
@@ -75,7 +75,7 @@ project_rules.md (LLMs)
 - Follows "3. Test Your Changes" with exact bash commands
 - ✅ Successful
 
-**LLM using DEVELOPER_GUIDE.md:**
+**LLM using developer-guide.instructions.md:**
 - "What's the template for a new Bash command?"
 - Finds "TEMPLATE: Bash Command" section
 - Sees full skeleton with header, validation, main logic
@@ -99,12 +99,12 @@ If you catch yourself writing both:
 
 | Document | Audience | Don't Mix With |
 |----------|----------|----------------|
-| CONTRIBUTING.md | Humans | DEVELOPER_GUIDE.md |
-| README.md | Users | FRAMEWORK.md |
+| CONTRIBUTING.md | Humans | developer-guide.instructions.md |
+| README.md | Users | framework.instructions.md |
 | SECURITY.md | Maintainers | project_rules.md |
-| docs/agent/DEVELOPER_GUIDE.md | LLMs | CONTRIBUTING.md |
-| docs/agent/FRAMEWORK.md | LLMs | README.md |
-| docs/agent/ARCHITECTURE.md | LLMs | None (standalone) |
+| .github/instructions/developer-guide.instructions.md | LLMs | CONTRIBUTING.md |
+| .github/instructions/framework.instructions.md | LLMs | README.md |
+| .github/instructions/architecture.instructions.md | LLMs | None (standalone) |
 | project_rules.md | LLMs | SECURITY.md |
 | .github/copilot-instructions.md | LLMs | CONTRIBUTING.md |
 

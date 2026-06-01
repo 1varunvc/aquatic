@@ -1,7 +1,7 @@
-## ARCHITECTURE.md
+## architecture.instructions.md
 
 ```markdown
-# ARCHITECTURE.md — Aquatic
+# architecture.instructions.md — Aquatic
 
 ## PROJECT IDENTITY
 
@@ -56,17 +56,18 @@ aquatic/
 │   ├── CONTRIBUTING.md                            # Human contribution guide
 │   ├── DOCS_PHILOSOPHY.md                         # Documentation audience split
 │   ├── SECURITY.md                                # Security policy
-│   └── llm/
-│       ├── context/
-│       │   ├── ARCHITECTURE.md                    # Structural reference for LLMs
-│       │   ├── DEVELOPER_GUIDE.md                 # Templates and coding patterns
-│       │   └── FRAMEWORK.md                       # Runtime and recipe reference
-│       ├── prompts/
-│       │   └── INITIAL_PROMPTS.md                 # Prompt guidance
-│       └── agent/
-│           └── KNOWLEDGE_ACCUMULATOR.md           # Session knowledge capture guidance
 └── .github/
-	└── copilot-instructions.md                   # Project instructions for AI code generation
+	├── copilot-instructions.md                   # Project instructions for AI code generation
+	└── instructions/
+	    ├── architecture.instructions.md          # Structural reference for LLMs
+	    ├── developer-guide.instructions.md       # Templates and coding patterns
+	    ├── development-rules.instructions.md     # Development rules and commit standards
+	    ├── framework.instructions.md             # Runtime and recipe reference
+	    └── knowledge-accumulator.instructions.md # Session knowledge capture guidance
+	├── prompts/
+	│   └── initial.prompt.md                     # Prompt guidance
+	└── plans/
+	    └── 2.3/                                  # Version-specific plans
 ```
 
 ## ROLE CLASSIFICATION TABLE
@@ -83,7 +84,7 @@ aquatic/
 | `aquatic-dev-mm-extract-csv.js` | DEV_SNIPPET (complex) |
 | `aquatic-dev-mm-extract-module.js` | DEV_SNIPPET |
 | `captions.example.txt` | RESOURCE |
-| `docs/llm/context/*.md`, `.github/copilot-instructions.md` | DOCS:LLM |
+| `.github/instructions/*.instructions.md`, `.github/copilot-instructions.md` | DOCS:LLM |
 | `README.md`, `docs/CHANGELOG.md`, `docs/CONTRIBUTING.md`, `docs/DOCS_PHILOSOPHY.md`, `docs/SECURITY.md` | DOCS:HUMAN |
 
 ## PATTERN TABLE

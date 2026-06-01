@@ -39,20 +39,20 @@ For a Homebrew formula, declare these dependencies:
 
 ## 5. Docs Restructuring (Professional Standard)
 
-The `docs/agent/` directory is for **AI/LLM reference only** (FRAMEWORK, ARCHITECTURE, DEVELOPER_GUIDE). User-facing documentation and project rules live at the root or in `.github/`.
+The `.github/instructions/` directory is for **AI/LLM reference only** (framework, architecture, developer-guide). User-facing documentation and project rules live at the root or in `.github/`.
 
-- **Keep in `docs/agent/` (AI reference):**
-  - `docs/agent/ARCHITECTURE.md` — system topology, components, execution flow
-  - `docs/agent/FRAMEWORK.md` — how to add anything, recipes, configuration
-  - `docs/agent/DEVELOPER_GUIDE.md` — templates, naming rules, error handling
-  - `docs/agent/INITIAL_PROMPTS.md` — meta-prompts for generating new docs
+- **Keep in `.github/instructions/` (AI reference):**
+  - `.github/instructions/architecture.instructions.md` — system topology, components, execution flow
+  - `.github/instructions/framework.instructions.md` — how to add anything, recipes, configuration
+  - `.github/instructions/developer-guide.instructions.md` — templates, naming rules, error handling
+  - `.github/prompts/initial.prompt.md` — meta-prompts for generating new docs
 - **Keep at root (for humans):**
   - `CONTRIBUTING.md` — how to contribute (newbies friendly, practical)
   - `README.md` — installation, usage, command reference (for users)
   - `project_rules.md` — specification and AI coding rules (for LLMs)
 - **Keep in `.github/`:**
   - `copilot-instructions.md` — AI-specific coding guidelines
-  - `.github/prompts/INITIAL_PROMPTS.md` — moved from docs/agent/
+  - `.github/prompts/initial.prompt.md` — prompts for AI doc generation
 - **New files at root:**
   - `LICENSE` (AGPL-3.0)
   - `SECURITY.md`
@@ -85,7 +85,7 @@ Current gaps and required fixes:
 2. **Create** `aquatic-xlr8.sh` and wire it into the router + help text.
 3. **Rename** `snippet)` to `dev)` in the router, rename snippet files from `aquatic-snippet-platform-*` to `aquatic-dev-*`, update all references.
 4. **Sanitize** sed inputs in the `dev)` block with an escape function.
-5. **Restructure docs:** flatten `docs/agent/` → `docs/ARCHITECTURE.md`, create root `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, expand `README.md`.
+5. **Restructure docs:** move LLM docs to `.github/instructions/`, create root `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `CHANGELOG.md`, expand `README.md`.
 6. **Add** `.editorconfig` and `.github/workflows/shellcheck.yml`.
 
 ---
@@ -104,7 +104,7 @@ Current gaps and required fixes:
 
 - **Users read:** `README.md`, `SECURITY.md`, `CHANGELOG.md` (prose, quick answers)
 - **Contributors read:** `CONTRIBUTING.md` (step-by-step, no jargon)
-- **LLMs read:** `docs/agent/*.md`, `project_rules.md`, `.github/copilot-instructions.md` (dense tables, pointers, templates)
+- **LLMs read:** `.github/instructions/*.instructions.md`, `project_rules.md`, `.github/copilot-instructions.md` (dense tables, pointers, templates)
 
 **File Locations (Final):**
 
@@ -114,9 +114,9 @@ Current gaps and required fixes:
 | Contribution workflow | `CONTRIBUTING.md` | Contributors |
 | Security policy | `SECURITY.md` | Users/Maintainers |
 | What's new | `CHANGELOG.md` | Users |
-| System design | `docs/agent/ARCHITECTURE.md` | LLMs |
-| How to add features | `docs/agent/FRAMEWORK.md` | LLMs |
-| Templates + standards | `docs/agent/DEVELOPER_GUIDE.md` | LLMs |
+| System design | `.github/instructions/architecture.instructions.md` | LLMs |
+| How to add features | `.github/instructions/framework.instructions.md` | LLMs |
+| Templates + standards | `.github/instructions/developer-guide.instructions.md` | LLMs |
 | Project spec | `project_rules.md` | LLMs |
 | AI coding rules | `.github/copilot-instructions.md` | LLMs |
 | Docs philosophy | `DOCS_PHILOSOPHY.md` | Maintainers |

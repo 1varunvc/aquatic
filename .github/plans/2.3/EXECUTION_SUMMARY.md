@@ -50,11 +50,11 @@
 - ✅ `DOCS_PHILOSOPHY.md` — Documentation strategy explanation
 - ✅ `LICENSE` — AGPL-3.0 with attribution requirement
 
-**LLM reference (docs/agent/):**
-- ✅ `ARCHITECTURE.md` — System topology, components, patterns (tables + pointers)
-- ✅ `FRAMEWORK.md` — Recipes for adding features (no human prose)
-- ✅ `DEVELOPER_GUIDE.md` — Templates, naming rules, checklists (for LLMs)
-- ✅ `INITIAL_PROMPTS.md` — Meta-prompts for generating new docs
+**LLM reference (.github/instructions/):**
+- architecture.instructions.md — System topology, components, patterns (tables + pointers)
+- framework.instructions.md — Recipes for adding features (no human prose)
+- developer-guide.instructions.md — Templates, naming rules, checklists (for LLMs)
+- initial.prompt.md — Meta-prompts for generating new docs
 
 **Project rules:**
 - ✅ `project_rules.md` — Specification and AI coding requirements
@@ -85,8 +85,8 @@
 | `DOCS_PHILOSOPHY.md` | Documentation strategy |
 | `.editorconfig` | Code formatting standards |
 | `.github/workflows/shellcheck.yml` | CI linting |
-| `.github/prompts/INITIAL_PROMPTS.md` | AI doc generation prompts |
-| `docs/agent/DEVELOPER_GUIDE.md` | LLM templates and standards |
+| `.github/prompts/initial.prompt.md` | AI doc generation prompts |
+| `.github/instructions/developer-guide.instructions.md` | LLM templates and standards |
 | `project_rules.md` | Project specification |
 
 **Total new files:** 11
@@ -123,7 +123,7 @@
 | Dev-mode approach | Rename to `aquatic-dev-*.js`, gate with `AQUATIC_DEV=1` env var |
 | Homebrew distribution | Standalone formula tap (not yet created) |
 | License | AGPL-3.0 — prevents proprietary use, requires attribution |
-| Documentation audience split | Humans read root .md; LLMs read docs/agent/ + project_rules.md |
+| Documentation audience split | Humans read root .md; LLMs read .github/instructions/ + .github/copilot-instructions.md |
 
 ---
 
@@ -168,9 +168,9 @@
 **As an LLM writing code:**
 - See `project_rules.md` for project spec
 - See `.github/copilot-instructions.md` for AI rules
-- See `docs/agent/DEVELOPER_GUIDE.md` for templates
-- See `docs/agent/FRAMEWORK.md` for recipes
-- See `docs/agent/ARCHITECTURE.md` for design
+- See `.github/instructions/developer-guide.instructions.md` for templates
+- See `.github/instructions/framework.instructions.md` for recipes
+- See `.github/instructions/architecture.instructions.md` for design
 
 ---
 

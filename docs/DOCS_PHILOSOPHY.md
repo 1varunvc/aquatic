@@ -18,9 +18,9 @@ This document explains how documentation is organized in aquatic and who should 
 **Characteristics:** Practical, step-by-step, tells you how to do things. No reference tables. Shows copy-paste examples.
 
 ### 3. **AI/LLMs** — Need dense reference info to write code correctly
-- **docs/agent/ARCHITECTURE.md** — File map, component roles, patterns, decision trees
-- **docs/agent/FRAMEWORK.md** — Execution flow, recipes for adding anything, configuration
-- **docs/agent/DEVELOPER_GUIDE.md** — Templates, naming rules, error handling (tabular format)
+- **.github/instructions/architecture.instructions.md** — File map, component roles, patterns, decision trees
+- **.github/instructions/framework.instructions.md** — Execution flow, recipes for adding anything, configuration
+- **.github/instructions/developer-guide.instructions.md** — Templates, naming rules, error handling (tabular format)
 - **.github/copilot-instructions.md** — Project specification, AI coding guidelines, and standards
 
 **Characteristics:** Dense, tabular, reference-oriented, pointer-based. No prose explanations. Maximum signal-to-noise.
@@ -40,17 +40,17 @@ This document explains how documentation is organized in aquatic and who should 
 | Security policy | `SECURITY.md` | Users/Maintainers | Prose |
 | Changelog | `CHANGELOG.md` | Users | List format |
 | Contribution guide | `CONTRIBUTING.md` | Contributors | Prose + examples |
-| Architecture spec | `docs/agent/ARCHITECTURE.md` | LLMs | Tables + pointers |
-| Framework recipes | `docs/agent/FRAMEWORK.md` | LLMs | Recipe format |
-| Dev templates | `docs/agent/DEVELOPER_GUIDE.md` | LLMs | Templates + tables |
+| Architecture spec | `.github/instructions/architecture.instructions.md` | LLMs | Tables + pointers |
+| Framework recipes | `.github/instructions/framework.instructions.md` | LLMs | Recipe format |
+| Dev templates | `.github/instructions/developer-guide.instructions.md` | LLMs | Templates + tables |
 | Project spec + AI coding rules | `.github/copilot-instructions.md` | LLMs | Prose + rules |
 
 ---
 
 ## What NOT to Put Where
 
-- **Don't put dense reference tables in CONTRIBUTING.md** — Those go in DEVELOPER_GUIDE.md for LLMs.
-- **Don't put step-by-step tutorials in ARCHITECTURE.md** — That goes in FRAMEWORK.md under "Recipes".
+- **Don't put dense reference tables in CONTRIBUTING.md** — Those go in developer-guide.instructions.md for LLMs.
+- **Don't put step-by-step tutorials in architecture.instructions.md** — That goes in framework.instructions.md under "Recipes".
 - **Don't duplicate rules between files** — One source of truth per rule set.
 - **Don't write for both humans and LLMs in the same document** — Create separate versions.
 
@@ -64,8 +64,8 @@ A human contributor reads:
 
 An LLM writing the implementation reads:
 1. **.github/copilot-instructions.md** § "Mandatory File Header" → Exact format
-2. **docs/agent/DEVELOPER_GUIDE.md** § "TEMPLATE: Bash Command" → Skeleton
-3. **docs/agent/FRAMEWORK.md** § "Recipe: New Bash Command" → Wiring steps
+2. **.github/instructions/developer-guide.instructions.md** § "TEMPLATE: Bash Command" → Skeleton
+3. **.github/instructions/framework.instructions.md** § "Recipe: New Bash Command" → Wiring steps
 4. **.github/copilot-instructions.md** — Overall rules, patterns, and guardrails
 
 ---

@@ -1,9 +1,9 @@
 ---
 
-## FRAMEWORK.md
+## framework.instructions.md
 
 ```markdown
-# FRAMEWORK.md — Aquatic
+# framework.instructions.md — Aquatic
 
 ## System Overview
 
@@ -50,7 +50,7 @@ aquatic (Bash router) ─── reads VERSION, runs _aquatic_update_notify()
 
 ```
 CREATE: scripts/aquatic-<name>.sh
-- Use TEMPLATE from DEVELOPER_GUIDE.md S 2
+- Use TEMPLATE from developer-guide.instructions.md S 2
 - Header block with Script Name, Description, Usage, Requirements: ffmpeg
 - Flag-based arg parsing: while/case loop with POSITIONAL array
 - --help|-h handler

@@ -152,8 +152,8 @@ echo "[OK] Done. Saved as output.mov"
 
 ## Questions?
 
-- **How do I add a new command?** See [DEVELOPER_GUIDE.md](llm/context/DEVELOPER_GUIDE.md) (for LLMs) or copy an existing command.
-- **Where's the architecture?** See [ARCHITECTURE.md](llm/context/ARCHITECTURE.md).
+- **How do I add a new command?** See [developer-guide.instructions.md](../.github/instructions/developer-guide.instructions.md) (for LLMs) or copy an existing command.
+- **Where's the architecture?** See [architecture.instructions.md](../.github/instructions/architecture.instructions.md).
 - **How do dev snippets work?** Run `AQUATIC_DEV=1 aquatic dev` and see available snippets.
 
 ## Testing Before You Submit

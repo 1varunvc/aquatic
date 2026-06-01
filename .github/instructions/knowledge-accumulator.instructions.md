@@ -10,18 +10,18 @@ This project maintains four markdown files. Each has a distinct purpose. Route i
 
 | File | Purpose | What Goes Here | What Does NOT Go Here |
 |---|---|---|---|
-| `FRAMEWORK.md` | How the framework works — behavioral reference | Lifecycle flows, component behavior, external library internals (decompiled), API contracts, config system mechanics, non-obvious side effects, integration points between subsystems | Structural layout, code recipes, investigation narratives |
-| `ARCHITECTURE.md` | What the codebase looks like — structural audit | Package hierarchy, dependency table, layer classification, pattern table with file:line references, prioritized file lists per layer | Behavioral details, how-to recipes, bug investigations |
-| `DEVELOPER_GUIDE.md` | How to write code in this framework — developer guide | Recipes, templates, naming rules, annotation reference, test writing rules, import/formatting conventions, class design rules | Runtime behavior, debugging findings, structural audits |
+| `framework.instructions.md` | How the framework works — behavioral reference | Lifecycle flows, component behavior, external library internals (decompiled), API contracts, config system mechanics, non-obvious side effects, integration points between subsystems | Structural layout, code recipes, investigation narratives |
+| `architecture.instructions.md` | What the codebase looks like — structural audit | Package hierarchy, dependency table, layer classification, pattern table with file:line references, prioritized file lists per layer | Behavioral details, how-to recipes, bug investigations |
+| `developer-guide.instructions.md` | How to write code in this framework — developer guide | Recipes, templates, naming rules, annotation reference, test writing rules, import/formatting conventions, class design rules | Runtime behavior, debugging findings, structural audits |
 | `INVESTIGATION_LOG.md` | What was discovered through debugging — accumulated investigation knowledge | Bug root causes, verified behavioral findings, diagnostic techniques, files explored with non-obvious details, dead code identified, commands run and what they proved | General framework docs, code recipes, structural layout |
 
 **Decision tree:**
-- "How does X work at runtime?" → `FRAMEWORK.md`
-- "Where is X in the codebase?" → `ARCHITECTURE.md`
-- "How do I create/add X?" → `DEVELOPER_GUIDE.md`
+- "How does X work at runtime?" → `framework.instructions.md`
+- "Where is X in the codebase?" → `architecture.instructions.md`
+- "How do I create/add X?" → `developer-guide.instructions.md`
 - "What did we learn by investigating X?" → `INVESTIGATION_LOG.md`
 
-If a finding is BOTH a general framework fact AND an investigation result, put the reusable fact in `FRAMEWORK.md` and the investigation-specific narrative (symptom → root cause → fix) in `INVESTIGATION_LOG.md`. Cross-reference, don't duplicate.
+If a finding is BOTH a general framework fact AND an investigation result, put the reusable fact in `framework.instructions.md` and the investigation-specific narrative (symptom → root cause → fix) in `INVESTIGATION_LOG.md`. Cross-reference, don't duplicate.
 
 ---
 
@@ -105,8 +105,8 @@ All information added must satisfy ALL of these:
 - **Headers, bullets, and short code snippets** — not paragraphs of prose. Keep code snippets to the relevant 1-5 lines, not entire methods.
 - **Use tables** for structured reference data (attribute keys, API contracts, file catalogs).
 - **Use code blocks** for exact code, commands, and flows. Use inline `backticks` for class/method names in prose.
-- **Cross-reference other markdowns** instead of duplicating: "See `FRAMEWORK.md → Reporting System → Local Rerun Flow`"
-- **INVESTIGATION_LOG.md entries** must follow the numbered entry format already established in that file. Increment the entry number. Use the Area tags from `ARCHITECTURE.md` layer classification.
+- **Cross-reference other markdowns** instead of duplicating: "See `framework.instructions.md → Reporting System → Local Rerun Flow`"
+- **INVESTIGATION_LOG.md entries** must follow the numbered entry format already established in that file. Increment the entry number. Use the Area tags from `architecture.instructions.md` layer classification.
 - **Design for appendability** — structure so future sessions can add new sections in the same format without restructuring.
 
 ---
