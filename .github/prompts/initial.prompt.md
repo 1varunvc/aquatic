@@ -4,7 +4,7 @@
 You are a software architect auditing a codebase you've never seen before. You have filesystem access.
 
 GOAL
-Produce ARCHITECTURE.md — a dense structural reference capturing the project's topology, stack, and key files.
+Produce ARCHITECTURE.md (to be saved as `architecture.instructions.md`) — a dense structural reference capturing the project's topology, stack, and key files.
 
 EXECUTION STEPS
 
@@ -47,7 +47,7 @@ For each role:
   SKIP: Files that follow an already-documented pattern
 
 OUTPUT FORMAT
-Produce ARCHITECTURE.md with:
+Produce ARCHITECTURE.md (saved as `architecture.instructions.md`) with:
 1. PROJECT IDENTITY
 2. DEPENDENCY LIST
 3. FILE MAP
@@ -71,10 +71,10 @@ BEGIN. List the root directory now.
 ## PROMPT 2 OF 3 — DEVELOPER GUIDE
 
 ```
-You are producing the coding standards document for a codebase. You have filesystem access and the ARCHITECTURE.md from Prompt 1 (provided below or attached).
+You are producing the coding standards document for a codebase. You have filesystem access and the architecture.instructions.md from Prompt 1 (provided below or attached).
 
 GOAL
-Produce DEVELOPER_GUIDE.md — a rulebook an AI agent (or new contributor) uses to write code that fits this project perfectly.
+Produce DEVELOPER_GUIDE.md (to be saved as `developer-guide.instructions.md`) — a rulebook an AI agent (or new contributor) uses to write code that fits this project perfectly.
 
 DESIGN PRINCIPLES
 1. Rules, not descriptions. ("All scripts MUST start with a header block" not "The project uses header blocks")
@@ -84,7 +84,7 @@ DESIGN PRINCIPLES
 
 EXECUTION STEPS
 
-Step 1: Read ARCHITECTURE.md. Identify all roles and their MUST-READ files.
+Step 1: Read architecture.instructions.md. Identify all roles and their MUST-READ files.
 
 Step 2: Read every MUST-READ file. For each, extract:
   - Naming convention
@@ -95,11 +95,11 @@ Step 2: Read every MUST-READ file. For each, extract:
 
 Step 3: Read 1-2 NICE-TO-READ files per role only where MUST-READ left ambiguity.
 
-Step 4: Generate DEVELOPER_GUIDE.md using the structure below.
+Step 4: Generate developer-guide.instructions.md using the structure below.
 
 OUTPUT STRUCTURE
 
-# DEVELOPER_GUIDE.md
+# developer-guide.instructions.md
 
 ## Quick Reference Card
 | I need to create a... | Base/Pattern | Location | Name Pattern |
@@ -136,9 +136,9 @@ RULES
 - Templates > descriptions. Show the skeleton.
 - Skip anything obvious about the language itself. Document THIS PROJECT's conventions.
 
-BEGIN. Read the ARCHITECTURE.md, then start reading MUST-READ files.
+BEGIN. Read the architecture.instructions.md, then start reading MUST-READ files.
 
-[PASTE ARCHITECTURE.md HERE]
+[PASTE architecture.instructions.md HERE]
 ```
 
 ---
@@ -146,10 +146,10 @@ BEGIN. Read the ARCHITECTURE.md, then start reading MUST-READ files.
 ## PROMPT 3 OF 3 — FRAMEWORK KNOWLEDGE
 
 ```
-You are producing the operational knowledge base for a codebase. You have filesystem access and the ARCHITECTURE.md from Prompt 1 (provided below or attached).
+You are producing the operational knowledge base for a codebase. You have filesystem access and the architecture.instructions.md from Prompt 1 (provided below or attached).
 
 GOAL
-Produce FRAMEWORK.md — a document giving an AI agent (or new contributor) 100% of the knowledge needed to:
+Produce FRAMEWORK.md (to be saved as `framework.instructions.md`) — a document giving an AI agent (or new contributor) 100% of the knowledge needed to:
 - Understand what every component does
 - Trace any execution flow end-to-end
 - Add any new component by following a precise recipe
@@ -163,7 +163,7 @@ DESIGN PRINCIPLES
 
 EXECUTION STEPS
 
-Step 1: Read ARCHITECTURE.md. Identify all roles.
+Step 1: Read architecture.instructions.md. Identify all roles.
 
 Step 2: Targeted reads only:
   - For execution flow: Read the entry point top-to-bottom, trace into 1-2 sub-components.
@@ -171,11 +171,11 @@ Step 2: Targeted reads only:
   - For data flow: Trace one complete flow from input to output.
   Stop reading once you can answer the question.
 
-Step 3: Generate FRAMEWORK.md using the structure below.
+Step 3: Generate framework.instructions.md using the structure below.
 
 OUTPUT STRUCTURE
 
-# FRAMEWORK.md
+# framework.instructions.md
 
 ## System Overview
 (3-5 sentences. What this project does, what tech it uses.)
@@ -192,7 +192,7 @@ Each recipe has:
   MODEL: which existing file to use as a template
   VERIFY: how to confirm it works
 
-(Include one recipe per component type discovered in ARCHITECTURE.md)
+(Include one recipe per component type discovered in architecture.instructions.md)
 
 ## Component Reference
 (For each major component/module: what it does, key entry points, how it connects to others. Use tables and file pointers.)
@@ -213,9 +213,9 @@ RULES
 - Use tables for reference data.
 - Don't explain what the language or framework is. Document THIS PROJECT's usage.
 
-BEGIN. Read the ARCHITECTURE.md, then start targeted file reads.
+BEGIN. Read the architecture.instructions.md, then start targeted file reads.
 
-[PASTE ARCHITECTURE.md HERE]
+[PASTE architecture.instructions.md HERE]
 ```
 
 ---

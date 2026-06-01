@@ -1,7 +1,7 @@
-## DEVELOPER_GUIDE.md
+## developer-guide.instructions.md
 
 ```markdown
-# DEVELOPER_GUIDE.md — Aquatic
+# developer-guide.instructions.md — Aquatic
 
 ## Quick Reference Card
 
@@ -17,7 +17,7 @@
 - The router is `aquatic` (no extension) in the repo root.
 - Bash/Zsh sub-scripts live in `scripts/` with `.sh` extension.
 - Dev snippets and Node.js dev commands live in `scripts/dev/` with `.js` extension.
-- Human-facing docs live in `docs/`. LLM reference docs live in `docs/llm/context/`. Prompt and agent workflow docs live in `docs/llm/prompt/` and `docs/llm/agent/`. AI instructions live in `.github/copilot-instructions.md`.
+- Human-facing docs live in `docs/`. LLM reference docs live in `.github/instructions/`. Prompts live in `.github/prompts/`. AI instructions live in `.github/copilot-instructions.md`.
 - No `node_modules/`, no `package.json`. Node.js scripts use only built-in modules (`fs`, `path`).
 - `VERSION` file in root holds the current version string.
 - `RELEASES.md` in root holds the version release log consumed by the update notification system.
